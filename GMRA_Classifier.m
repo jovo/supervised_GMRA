@@ -253,6 +253,7 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
                 struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
+MRA.results = results;
 MRA.track_activenode = track_activenode;
 fprintf('\n done.\n');
 
