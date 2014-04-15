@@ -21,24 +21,32 @@ function ClassifierResults = GMRA_Classifier_test( MRA, X, TrainGroup, Y )
 
 global COMBINED
 
-fcn_test_single_node = @classify_single_node_test;
-
-Data_test           = X(:,TrainGroup==0);
-MRA.Data_test_GWT   = FGWT( MRA , Data_test );                      % The classifier works on the GWT side
-MRA.Labels_test     = Y(TrainGroup==0);
-
-% Go through the active nodes in the classifier and classify the test points in there
-for k = 1:length(MRA.Classifier.activenode_idxs),
-    current_node_idx = MRA.Classifier.activenode_idxs(k);
+if isempty(MRA.Classifier.activenode_idxs)
+    ClassifierResults = [];
+    disp('ERROR: No active node in the trained GMRA-classifier.');
     
-    % Classify on the k-th active node, using its corresponding classifier
-    [ClassifierResults.Test.errors(current_node_idx),ClassifierResults.Test.Labels_node_pred{current_node_idx},dataIdxs_test, ...
-        ClassifierResults.Test.Labels_node_prob{current_node_idx}] = ...
-        fcn_test_single_node( MRA, MRA.Data_test_GWT, MRA.Labels_test, struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED) );    
+else
     
-    % String the predicted labels in an easily accessible vector
-    ClassifierResults.Test.Labels(dataIdxs_test)     = ClassifierResults.Test.Labels_node_pred{current_node_idx};
-    ClassifierResults.Test.LabelsProb(dataIdxs_test) = ClassifierResults.Test.Labels_node_prob{current_node_idx};
-end;
+    disp('debugging');
+    fcn_test_single_node = @classify_single_node_test;
+    
+    Data_test           = X(:,TrainGroup==0);
+    MRA.Data_test_GWT   = FGWT( MRA , Data_test );                      % The classifier works on the GWT side
+    MRA.Labels_test     = Y(TrainGroup==0);
+    
+    % Go through the active nodes in the classifier and classify the test points in there
+    for k = 1:length(MRA.Classifier.activenode_idxs),
+        current_node_idx = MRA.Classifier.activenode_idxs(k);
+        
+        % Classify on the k-th active node, using its corresponding classifier
+        [ClassifierResults.Test.errors(current_node_idx),ClassifierResults.Test.Labels_node_pred{current_node_idx},dataIdxs_test, ...
+            ClassifierResults.Test.Labels_node_prob{current_node_idx}] = ...
+            fcn_test_single_node( MRA, MRA.Data_test_GWT, MRA.Labels_test, struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED) );
+        
+        % String the predicted labels in an easily accessible vector
+        ClassifierResults.Test.Labels(dataIdxs_test)     = ClassifierResults.Test.Labels_node_pred{current_node_idx};
+        ClassifierResults.Test.LabelsProb(dataIdxs_test) = ClassifierResults.Test.Labels_node_prob{current_node_idx};
+    end;
+end
 
 return;

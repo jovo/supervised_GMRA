@@ -27,7 +27,7 @@ function [MRA] = GMRA_Classifier( X, TrainGroup, Labels, Opts )
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    GMRAopts.ManifoldDimension = 40;
+    Opts.GMRAopts.ManifoldDimension = 40;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -123,10 +123,12 @@ results(root_idx).error_value_to_use = UNDECIDED;
 % Initialize the java deque
 activenode_idxs = java.util.ArrayDeque();
 activenode_idxs.addFirst(root_idx);
+track_activenode = 1;
 
 %% Main loop to work iteratively down the tree breadth first
 while (~activenode_idxs.isEmpty())
     current_node_idx = activenode_idxs.removeLast();
+    track_activenode = track_activenode - 1;
     % Get list of parent node indexes for use in a couple spots later
     current_parents_idxs = fliplr(dpath(MRA.cp, current_node_idx));
     current_parents_idxs = current_parents_idxs(2:end);    
@@ -174,6 +176,7 @@ while (~activenode_idxs.isEmpty())
                     % to check those older nodes to see if now their children should be added...
                     for idx = children_to_free{parent_node_idx}
                         activenode_idxs.addFirst(idx);
+                        track_activenode = track_activenode + 1;
                     end
                     children_to_free{parent_node_idx} = [];
                     continue;
@@ -209,6 +212,7 @@ while (~activenode_idxs.isEmpty())
         % Find childrent of current node
         for idx = current_children_idxs
             activenode_idxs.addFirst(idx);
+            track_activenode = track_activenode + 1;
         end
     else
         % DEBUG
@@ -249,6 +253,7 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
                 struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
+MRA.track_activenode = track_activenode;
 fprintf('\n done.\n');
 
 return;
