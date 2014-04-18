@@ -59,7 +59,7 @@ fcn_traincv_single_node = @classify_single_node_crossvalidation;
 % itself. DEPTH = 0 will stop immediately when children don't help.
 % DEPTH = 2 will look down 2 levels to see if it can do better. I usually
 % set to 6 or 10 to search most of the tree.
-ALLOWED_DEPTH = 2;
+ALLOWED_DEPTH = 5;
 
 % Flag for error status on each node
 global USE_THIS USE_SELF USE_CHILDREN UNDECIDED COMBINED
@@ -74,7 +74,12 @@ Labels_train = Labels(TrainGroup == 1);
 
 %% Generate GMRA
 fprintf('\n Constructing GMRA...');
-MRA         = GMRA(X_train, Opts.GMRAopts);
+if ~isfield(Opts,'debugMRA') % If there is not MRA already, do GMRA and output as MRA
+    MRA         = GMRA(X_train, Opts.GMRAopts);
+    MRA.debugMRA = MRA;
+else                         % If there is MRA given as input, don't do GMRA.
+    MRA         = Opts.debugMRA;
+end
 MRA         = rmfield(MRA, 'X');
 MRA.Labels_train = Labels_train;
 
@@ -149,13 +154,18 @@ while (~activenode_idxs.isEmpty())
         children_error_sum = sum( [results(current_children_idxs).self_error] );
         results(current_node_idx).direct_children_errors = children_error_sum;
         results(current_node_idx).best_children_errors = children_error_sum;
+    else
+        fprintf('\n There is no current children_idxs')
+        current_node_idx
     end
     
     % Compare children results to self error
     self_error = results(current_node_idx).self_error;
     if (self_error < children_error_sum)                                                % NOTE: slop based on std?
+        fprintf('\n debugging: USE_SELF');
         results(current_node_idx).error_value_to_use = USE_SELF;                        % Set status = USE_SELF        
     else        
+        fprintf('\n debugging: USE_CHILDREN');
         results(current_node_idx).error_value_to_use = USE_CHILDREN;                    % Set status = USE_CHILDREN                
         error_difference = self_error - children_error_sum;                             % Propagate difference up parent chain        
         for parent_node_idx = current_parents_idxs,                                     % Loop through list of parent nodes            
@@ -209,6 +219,7 @@ while (~activenode_idxs.isEmpty())
     
     % Only addFirst children on to the stack if this node qualifies
     if (use_self_depth_low_enough && all_children_errors_finite)
+        fprintf('\n debugging: The node qualifies.');
         % Find childrent of current node
         for idx = current_children_idxs
             activenode_idxs.addFirst(idx);
@@ -216,6 +227,13 @@ while (~activenode_idxs.isEmpty())
         end
     else
         % DEBUG
+        fprintf('\n debugging: No node qualifies.');
+        if ~use_self_depth_low_enough
+            fprintf('\n debugging: The nodes are too low.');
+        end
+        if ~all_children_errors_finite
+            fprintf('\n debugging: Not all the children errors are finite.')
+        end
     end
 end
 
