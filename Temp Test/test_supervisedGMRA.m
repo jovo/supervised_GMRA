@@ -159,6 +159,9 @@ TrainGroup(training_idx) = 1;
 % find(labels_pred_matlab ~= labels_pred)
 % find(labels_prob_matlab(:,2) ~= labels_prob)
 
+Opts = [];
+MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
+
 Opts.Classifier = @matlabLDA_traintest;
 MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
 
@@ -168,8 +171,29 @@ Opts = [];
 Opts.debugMRA = MRA_matlablda.debugMRA;
 MRA_lda2 = GMRA_Classifier( X, TrainGroup, Labels, Opts);
 
-ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels); 
+% Classifier_Test
+
 ClassifierResults_lda2 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels);
+ClassifierResults_lda3 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @QDA_test);
+ClassifierResults_lda4 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @LDA_test);
+ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels, @matlabLDA_test); 
+
+find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda3.Test.errors)
+find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda4.Test.errors)
+
+find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda3.Test.Labels_node_pred{end})
+find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda4.Test.Labels_node_pred{end})
+
+find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda3.Test.Labels_node_prob{end})
+find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda4.Test.Labels_node_prob{end})
+
+find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda3.Test.Labels)
+find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda4.Test.Labels)
+
+find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda3.Test.LabelsProb)
+find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda4.Test.LabelsProb)
+
+
 
 
 % %% Test data generation

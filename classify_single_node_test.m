@@ -16,7 +16,8 @@ function [total_errors, labels_pred, dataIdxs_test, labels_prob] = classify_sing
 
 if ~isfield(Opts,'classifier') || isempty(Opts.classifier),     Opts.classifier     = @QDA_test;    end;
 if ~isfield(Opts,'COMBINED')   || isempty(Opts.COMBINED),       Opts.Opts.COMBINED  = 0;            end;
-
+disp('The classifier for the test data: ')
+Opts.classifier
 
 % Test data
 if ~Opts.COMBINED %|| Opts.current_node_idx == length(MRA.cp),

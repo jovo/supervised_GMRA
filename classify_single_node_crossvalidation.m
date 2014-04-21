@@ -32,6 +32,8 @@ if (node_cats>1) && (node_pts>node_cats) && size(Data_GWT,1)>0
     cp = cvpartition(dataLabels,'k',10);
     opts = statset('UseParallel','never');                                                      % Matlab parallel CV is buggy. What a piece of junk.
     classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
+    whos classf
+    classf
     cvMCR = crossval('mcr',coeffs',dataLabels','predfun', classf,'partition',cp,'Options',opts); 
     total_errors    = cvMCR*length(dataLabels);
     std_errors      = 0;
