@@ -386,8 +386,6 @@ f3 = @(x,y) K3 + L3(1)*x + L3(2)*y
 h = ezplot(f3, [-1000. 1000]);
 set(h, 'Color', 'r')
 
-% Let matlabLDA mimic this behavior for now:
-
 
 
 

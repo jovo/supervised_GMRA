@@ -46,6 +46,10 @@ else
         
         % String the predicted labels in an easily accessible vector
         ClassifierResults.Test.Labels(dataIdxs_test)     = ClassifierResults.Test.Labels_node_pred{current_node_idx};
+        disp('It is: ')
+        size(ClassifierResults.Test.Labels_node_prob{current_node_idx})
+        ClassifierResults.Test.Labels_node_prob{current_node_idx}
+%         size(ClassifierResults.Test.LabelsProb(dataIdxs_test))
         ClassifierResults.Test.LabelsProb(dataIdxs_test) = ClassifierResults.Test.Labels_node_prob{current_node_idx};
     end;
 end
