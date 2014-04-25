@@ -178,7 +178,7 @@
 clear all
 N = 500;
 p = 10; % n = 8;
-mu0 = -2.5; mu1 = 2.5;
+mu0 = -0.5; mu1 = 0.5;
 sigma0_d = 0.5; sigma0_c = 0.1;
 sigma1_d = 0.5; sigma1_c = 0.1;
 
@@ -332,6 +332,8 @@ ezplot(f3);
 
 %%% Comparison result: same to nearest tenth. 
 
+
+%% Comparison of LDA_traintest vs. matlabLDA_trainetest for one unique label case
 % Testing how the LDA_train does when there is only one unique labels.
 % Normal condition (control)
 Input = [ 1 2 3 7 8 9; 12 11 10 15 16 17]';
@@ -386,9 +388,47 @@ f3 = @(x,y) K3 + L3(1)*x + L3(2)*y
 h = ezplot(f3, [-1000. 1000]);
 set(h, 'Color', 'r')
 
-% Let matlabLDA mimic this behavior for now:
+% Test with the LDA_traintest.m
+data_train = Input';
+labels_train = Target';
+data_test = [5 5 7 7; 6 12 4 16];
+labels_test = [1 0 1 0]; % If decided by the classifier.W determined by LDA_train.
+[labels_pred_mauro, n_errors_mauro, classifier_mauro, labels_prob_mauro] = LDA_traintest( data_train, labels_train, data_test, labels_test)
 
+% Let matlabLDA_traintest.m mimic this behavior for now:
+[labels_pred_matlab, n_errors_matlab, classifier_matlab, labels_prob_matlab] = matlabLDA_traintest( data_train, labels_train, data_test, labels_test)
 
+%% Comparison of LDA_traintest vs. matlabLDA_trainetest for a normal dataset
+addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
+data_train = training';
+labels_train = group_train';
+data_test = sample';
+labels_test = group_test';
+[labels_pred_mauro, n_errors_mauro, classifier_mauro, labels_prob_mauro] = LDA_traintest( data_train, labels_train, data_test, labels_test)
+[labels_pred_matlab, n_errors_matlab, classifier_matlab, labels_prob_matlab] = matlabLDA_traintest( data_train, labels_train, data_test, labels_test);
+
+find(labels_pred_mauro ~= labels_pred_matlab)
+max(labels_prob_mauro - labels_prob_matlab)
+find(n_errors_mauro ~= n_errors_matlab)
+max((classifier_mauro.W(1,:)- classifier_mauro.W(2,:)) - classifier_matlab.W)
+find(classifier_mauro.ClassLabel ~= classifier_matlab.ClassLabel)
+
+[n_errors_mauro_test, labels_pred_mauro_test, labels_prob_mauro_test] = LDA_test( classifier_mauro, data_test, labels_test )
+[n_errors_matlab_test, labels_pred_matlab_test, labels_prob_matlab_test] = matlabLDA_test( classifier_matlab, data_test, labels_test)
+
+find(labels_pred_mauro_test ~= labels_pred_matlab_test')
+max(labels_prob_mauro_test - labels_prob_matlab_test)
+find(n_errors_mauro_test ~= n_errors_matlab_test)
+
+% 
+% % Small test
+% a = [ 1 2; 3 4; 5 6; 7 8; 9 10];
+% a = a+ 1;
+% b = [ 1 0 1 0 1];
+% c(find(b==0)) = a(b == 0,1);
+% c(find(b==1)) = a(b == 1,2);
+% d(b==0) = a(b == 0,1);
+% d(b==1) = a(b == 1,2);
 
 
 

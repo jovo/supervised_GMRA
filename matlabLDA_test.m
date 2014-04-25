@@ -11,7 +11,7 @@ if ~isempty(data_test) && ~isempty(classifier.W),
 %     labels_prob = [];
     if (nargin>2) && (~isempty(labels_test)),
         whos labels_pred labels_test
-        n_errors = sum(labels_pred ~= labels_test');
+        n_errors = sum(labels_pred ~= labels_test);
     else
         n_errors = NaN;
     end;

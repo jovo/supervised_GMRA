@@ -69,14 +69,14 @@
 clear all;
 %% Add GMRA and GMRA_Classifier to the search path
 
-addpath('C:\Users\Billy\Desktop\GMRA')
+% addpath('C:\Users\Billy\Desktop\GMRA')
 addpath(genpath('C:\Users\Billy\Desktop\GMRA\GMRA\'))
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\Data_BMI\'))
+% addpath(genpath('C:\Users\Billy\Desktop\GMRA\Data_BMI\'))
 addpath(genpath('C:\Users\Billy\Desktop\GMRA\DiffusionGeometry\'))
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\SyntheticData\'))
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\DataSets'))
+% addpath(genpath('C:\Users\Billy\Desktop\GMRA\SyntheticData\'))
+% addpath(genpath('C:\Users\Billy\Desktop\GMRA\DataSets'))
 % addpath(genpath('C:\Users\Billy\Desktop\Gallant'))
-% addpath(genpath('C:\Users\Billy\Desktop\Data'))
+addpath(genpath('C:\Users\Billy\Desktop\Data'))
 % addpath(genpath('C:\Users\Billy\Desktop\Favorite\code_matlab\'))
 addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
 
@@ -161,7 +161,7 @@ TrainGroup(training_idx) = 1;
 
 Opts = [];
 MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-
+% X: D by N, TrainGroup: 1 by N, Labels: 1 by N.
 Opts.Classifier = @matlabLDA_traintest;
 MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
 
@@ -178,20 +178,29 @@ ClassifierResults_lda3 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, 
 ClassifierResults_lda4 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @LDA_test);
 ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels, @matlabLDA_test); 
 
+fprintf('Comparison of errors: \n'); 
 find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda3.Test.errors)
 find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda4.Test.errors)
+find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_matlablda.Test.errors)
 
+fprintf('Comparison of labels_node_pred: \n');
 find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda3.Test.Labels_node_pred{end})
 find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda4.Test.Labels_node_pred{end})
+% find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_matlablda.Test.Labels_node_pred{end})
 
+fprintf('Comparison of labels_node_prob: \n');
 find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda3.Test.Labels_node_prob{end})
 find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda4.Test.Labels_node_prob{end})
+find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_matlablda.Test.Labels_node_prob{end})
 
+fprintf('Comparison of Labels: \n');
 find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda3.Test.Labels)
 find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda4.Test.Labels)
+find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_matlablda.Test.Labels)
 
 find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda3.Test.LabelsProb)
 find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda4.Test.LabelsProb)
+find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_matlablda.Test.LabelsProb)
 
 
 
