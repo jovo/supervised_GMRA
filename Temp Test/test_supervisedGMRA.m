@@ -161,6 +161,7 @@ TrainGroup(training_idx) = 1;
 
 Opts = [];
 MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
+
 % X: D by N, TrainGroup: 1 by N, Labels: 1 by N.
 Opts.Classifier = @matlabLDA_traintest;
 MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);

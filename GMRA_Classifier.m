@@ -156,16 +156,13 @@ while (~activenode_idxs.isEmpty())
         results(current_node_idx).best_children_errors = children_error_sum;
     else
         fprintf('\n There is no current children_idxs')
-        current_node_idx
     end
     
     % Compare children results to self error
     self_error = results(current_node_idx).self_error;
     if (self_error < children_error_sum)                                                % NOTE: slop based on std?
-        fprintf('\n debugging: USE_SELF');
         results(current_node_idx).error_value_to_use = USE_SELF;                        % Set status = USE_SELF        
     else        
-        fprintf('\n debugging: USE_CHILDREN');
         results(current_node_idx).error_value_to_use = USE_CHILDREN;                    % Set status = USE_CHILDREN                
         error_difference = self_error - children_error_sum;                             % Propagate difference up parent chain        
         for parent_node_idx = current_parents_idxs,                                     % Loop through list of parent nodes            
@@ -219,15 +216,12 @@ while (~activenode_idxs.isEmpty())
     
     % Only addFirst children on to the stack if this node qualifies
     if (use_self_depth_low_enough && all_children_errors_finite)
-        fprintf('\n debugging: The node qualifies.');
         % Find childrent of current node
         for idx = current_children_idxs
             activenode_idxs.addFirst(idx);
-            track_activenode = track_activenode + 1;
         end
     else
         % DEBUG
-        fprintf('\n debugging: No node qualifies.');
         if ~use_self_depth_low_enough
             fprintf('\n debugging: The nodes are too low.');
         end
@@ -272,7 +266,6 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
 MRA.results = results;
-MRA.track_activenode = track_activenode;
 fprintf('\n done.\n');
 
 return;

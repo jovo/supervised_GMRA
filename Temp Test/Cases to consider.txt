@@ -1,0 +1,3 @@
+1. Case where all the data points in a node has only one unique label
+2. Case where there is no active nodes from the training stage.
+   Need to debug the GMRA_Classifier.m, all the children errors being Inf.
