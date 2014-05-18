@@ -1,0 +1,19 @@
+70K: 60K + 10K (Hard Binary Classification Problem)
+
+
+ACC_GMRALDA: 	 0.9678 0.9714
+ACC_LDA:	 0.8627 0.8627
+
+
+
+1.6K (Easy Problem)
+
+
+ACC_GMRALDA: 	 0.9975
+ACC_LDA:	 0.9625
+
+
+0.8K (Easy Problem)
+
+ACC_GMRALDA: 	 1
+ACC_LDA:	 0.7875
