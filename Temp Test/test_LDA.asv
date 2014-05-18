@@ -414,12 +414,13 @@ max((classifier_mauro.W(1,:)- classifier_mauro.W(2,:)) - classifier_matlab.W)
 find(classifier_mauro.ClassLabel ~= classifier_matlab.ClassLabel)
 
 [n_errors_mauro_test, labels_pred_mauro_test, labels_prob_mauro_test] = LDA_test( classifier_mauro, data_test, labels_test )
-[n_errors_matlab_test, labels_pred_matlab_test, labels_prob_matlab_test] = matlabLDA_test( classifier_matlab, data_test, labels_test)
+[n_errors_matlab_test, labels_pred_matlab_test, labels_prob_matlab_test] = matlabLDA_test( classifier_matlab, data_test, labels_test )
 
-find(labels_pred_mauro_test ~= labels_pred_matlab_test')
+find(labels_pred_mauro_test ~= labels_pred_matlab_test)
 max(labels_prob_mauro_test - labels_prob_matlab_test)
-find(n_errors_mauro_test ~= n_errors_matlab_test)
-
+find(n_errors_mauro ~= n_errors_matlab)
+max((classifier_mauro.W(1,:)- classifier_mauro.W(2,:)) - classifier_matlab.W)
+find(classifier_mauro.ClassLabel ~= classifier_matlab.ClassLabel)
 % 
 % % Small test
 % a = [ 1 2; 3 4; 5 6; 7 8; 9 10];

@@ -20,12 +20,12 @@ function ClassifierResults = GMRA_Classifier_test( MRA, X, TrainGroup, Y, classi
 % (c) Copyright Mauro Maggioni, 2013
 
 global COMBINED
-% 
-% if isempty(MRA.Classifier.activenode_idxs)
-%     ClassifierResults = [];
-%     disp('ERROR: No active node in the trained GMRA-classifier.');
-%     
-% else
+
+if isempty(MRA.Classifier.activenode_idxs)
+    ClassifierResults = [];
+    disp('ERROR: No active node in the trained GMRA-classifier.');
+    
+else
     if nargin < 5
         classifier = @LDA_test;
     end
@@ -48,6 +48,6 @@ global COMBINED
         ClassifierResults.Test.Labels(dataIdxs_test)     = ClassifierResults.Test.Labels_node_pred{current_node_idx};
         ClassifierResults.Test.LabelsProb(dataIdxs_test) = ClassifierResults.Test.Labels_node_prob{current_node_idx};
     end;
-% end
+end
 
 return;

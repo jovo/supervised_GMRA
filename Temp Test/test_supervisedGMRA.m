@@ -70,15 +70,19 @@ clear all;
 %% Add GMRA and GMRA_Classifier to the search path
 
 % addpath('C:\Users\Billy\Desktop\GMRA')
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\GMRA\'))
+
+addpath(genpath('/home/collabor/yb8/data/'));
+addpath(genpath('/home/collabor/yb8/GMRA/'));
+addpath(genpath('/home/collabor/yb8/DiffusionGeometry/'));
+addpath(genpath('/home/collabor/yb8/supervised_GMRA/'));
 % addpath(genpath('C:\Users\Billy\Desktop\GMRA\Data_BMI\'))
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\DiffusionGeometry\'))
+% addpath(genpath('C:\Users\Billy\Desktop\GMRA\DiffusionGeometry\'))
 % addpath(genpath('C:\Users\Billy\Desktop\GMRA\SyntheticData\'))
 % addpath(genpath('C:\Users\Billy\Desktop\GMRA\DataSets'))
 % addpath(genpath('C:\Users\Billy\Desktop\Gallant'))
-addpath(genpath('C:\Users\Billy\Desktop\Data'))
+% addpath(genpath('C:\Users\Billy\Desktop\Data'))
 % addpath(genpath('C:\Users\Billy\Desktop\Favorite\code_matlab\'))
-addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
+% addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
 
 
 % [X, vLabels]=Generate_MNIST([3, 3, 3], struct('Sampling', 'RandN', 'QueryDigits', [1, 6, 9], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
@@ -162,7 +166,6 @@ TrainGroup(training_idx) = 1;
 Opts = [];
 MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
 
-% X: D by N, TrainGroup: 1 by N, Labels: 1 by N.
 Opts.Classifier = @matlabLDA_traintest;
 MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
 
@@ -187,7 +190,7 @@ find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_matlablda.Test.erro
 fprintf('Comparison of labels_node_pred: \n');
 find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda3.Test.Labels_node_pred{end})
 find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda4.Test.Labels_node_pred{end})
-% find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_matlablda.Test.Labels_node_pred{end})
+find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_matlablda.Test.Labels_node_pred{end})
 
 fprintf('Comparison of labels_node_prob: \n');
 find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda3.Test.Labels_node_prob{end})

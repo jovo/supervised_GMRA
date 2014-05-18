@@ -128,12 +128,10 @@ results(root_idx).error_value_to_use = UNDECIDED;
 % Initialize the java deque
 activenode_idxs = java.util.ArrayDeque();
 activenode_idxs.addFirst(root_idx);
-track_activenode = 1;
 
 %% Main loop to work iteratively down the tree breadth first
 while (~activenode_idxs.isEmpty())
     current_node_idx = activenode_idxs.removeLast();
-    track_activenode = track_activenode - 1;
     % Get list of parent node indexes for use in a couple spots later
     current_parents_idxs = fliplr(dpath(MRA.cp, current_node_idx));
     current_parents_idxs = current_parents_idxs(2:end);    
@@ -155,7 +153,7 @@ while (~activenode_idxs.isEmpty())
         results(current_node_idx).direct_children_errors = children_error_sum;
         results(current_node_idx).best_children_errors = children_error_sum;
     else
-        fprintf('\n There is no current children_idxs')
+        fprintf('\n There is no current children_idxs');
     end
     
     % Compare children results to self error
@@ -183,7 +181,6 @@ while (~activenode_idxs.isEmpty())
                     % to check those older nodes to see if now their children should be added...
                     for idx = children_to_free{parent_node_idx}
                         activenode_idxs.addFirst(idx);
-                        track_activenode = track_activenode + 1;
                     end
                     children_to_free{parent_node_idx} = [];
                     continue;
@@ -216,18 +213,23 @@ while (~activenode_idxs.isEmpty())
     
     % Only addFirst children on to the stack if this node qualifies
     if (use_self_depth_low_enough && all_children_errors_finite)
+        fprintf('\n debugging: The node qualifies.');
         % Find childrent of current node
         for idx = current_children_idxs
             activenode_idxs.addFirst(idx);
         end
     else
         % DEBUG
-        if ~use_self_depth_low_enough
-            fprintf('\n debugging: The nodes are too low.');
-        end
-        if ~all_children_errors_finite
-            fprintf('\n debugging: Not all the children errors are finite.')
-        end
+        
+	% fprintf('\n debugging: No node qualifies.');
+        
+	% if ~use_self_depth_low_enough
+        %    fprintf('\n debugging: The nodes are too low.');
+        % end
+        
+	% if ~all_children_errors_finite
+        %    fprintf('\n debugging: Not all the children errors are finite.')
+        % end
     end
 end
 
@@ -266,6 +268,7 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
 MRA.results = results;
+
 fprintf('\n done.\n');
 
 return;
