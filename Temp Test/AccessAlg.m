@@ -7,20 +7,16 @@ function [classifier_train, classifier_test] = AccessAlg(pClassifierName)
 switch pClassifierName
     
     case 'LDA'
-        addpath(genpath('/home/collabor/yb8/supervised_GRMA/'))
         classifier_train = @LDA_traintest;
         classifier_test = @LDA_test;
         
     case 'matlab_LDA'
-        addpath(genpath('/home/collabor/yb8/supervised_GRMA/'));
         classifier_train = @matlabLDA_traintest;
         classifier_test = @matlabLDA_test;
 
     case 'QDA'
-        addpath(genpath('/home/collabor/yb8/supervised_GRMA/'))
         
     case 'LOL'
-        addpath(genpath('/home/collabor/yb8/supervised_GRMA/'))
 
 end
 
