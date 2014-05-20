@@ -6,16 +6,55 @@ function [X, TrainGroup, Labels] = LoadData(pDataSetName)
 
 switch pDataSetName
     
-    case 'MNIST_Digits_70000'
+    case 'MNIST_HardBinary_T60K_t10K'
         
-        X = [];
-        TrainGroup = [];
-        Labels =[];
+	addpath(genpath('/home/collabor/yb8/data/'));
+	
+	dummy = load('img_test.mat');
+	Xtest = dummy.images_test;
+	dummy = load('img_train.mat');
+	Xtrain = dummy.images_train;
+	dummy = load('labels_test.mat');
+	Ytest = dummy.labels_test;
+	dummy = load('labels_train.mat');
+	Ytrain = dummy.labels_train;
+	clear dummy
+       
+	% Convert Y to binary classification problem
+	Ytrain(Ytrain<5) = 0; Ytrain(Ytrain>=5) = 1;
+	Ytest(Ytest<5) = 0; Ytest(Ytest>=5) = 1;
+	Ytrain(1:10)
+
+	X = [Xtrain Xtest];
+        TrainGroup = [ones(1, size(Xtrain, 2)) zeros(1, size(Xtest, 2))];
+        Labels = [Ytrain Ytest];
+              
+              
+    case 'MNIST_EasyBinary_T2.5K_t2.5K'
         
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([2500, 2500], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
         
-    case 'MNIST_Digits_1600'
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
         
-        addpath(genpath('C:\Users\Billy\Desktop\Data'))
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+ 
+
+    case 'MNIST_EasyBinary_T0.8K_t0.8K'
+        
+        addpath(genpath('/home/collabor/yb8/data/'))
 
         [X, vLabels]=Generate_MNIST([800, 800], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
         [N, D] = size(X);
@@ -67,8 +106,141 @@ switch pDataSetName
         TrainGroup = zeros(1,N);
         training_idx = 1:N.*1/2;
         TrainGroup(training_idx) = 1;
+             
+ 
+    case 'MNIST_EasyBinary_T0.7K_t0.7K'
         
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([700, 700], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
         
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+ 
+
+ 
+    case 'MNIST_EasyBinary_T0.6K_t0.6K'
+        
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([600, 600], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+ 
+ 
+    case 'MNIST_EasyBinary_T0.5K_t0.5K'
+        
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([500, 500], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+ 
+ 
+    case 'MNIST_EasyBinary_T0.4K_t0.4K'
+        
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([400, 400], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+ 
+ 
+    case 'MNIST_EasyBinary_T0.3K_t0.3K'
+        
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([300, 300], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+      
+ 
+    case 'MNIST_EasyBinary_T0.2K_t0.2K'
+        
+        addpath(genpath('/home/collabor/yb8/data/'))
+
+        [X, vLabels]=Generate_MNIST([200, 200], struct('Sampling', 'RandN', 'QueryDigits', [0, 1], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+       
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+	swap = randperm(N);
+	X = X(:, swap);
+	Labels = Labels(:, swap);
+	TranGroup = TrainGroup(:, swap);   
+ 
+    
     case 'Gaussian_2'
         
         N = 500;

@@ -7,7 +7,7 @@ clc
 
 %% Pick a data set
 
-pDataSetNames  = {'MNIST_Digits_70000', 'MNIST_Digits_1600', 'Gaussian_2', 'FisherIris' };
+pDataSetNames  = {'MNIST_HardBinary_T60K_t10K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'Gaussian_2', 'FisherIris' };
     
 fprintf('\n Data Sets:\n');
 for k = 1:length(pDataSetNames),
@@ -37,8 +37,8 @@ n_classifiers = numel(pClassifierIdx);
 %% Add algorithm directory to search path
 
 % Add GMRA directory
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\GMRA\'))
-addpath(genpath('C:\Users\Billy\Desktop\GMRA\DiffusionGeometry\'))
+addpath(genpath('/home/collabor/yb8/GMRA/'))
+addpath(genpath('/home/collabor/yb8/DiffusionGeometry/'))
 
 % Add Classifier directory
 for k = 1: n_classifiers
@@ -54,8 +54,6 @@ for k = 1: n_classifiers
    ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k});
 end
 
-return;
- 
 
 %
 % Opts = [];
@@ -79,31 +77,56 @@ return;
 % ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels, @matlabLDA_test); 
 % 
 
+%% Accuracy
+
+for k = 1: n_classifiers
+    ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
+end
+
+save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
+
+%% Accuracy of Simple-LDA for comparison
+X = X'; Labels = Labels'; % D by N to N by D
+sample = X(TrainGroup == 0, :);
+training = X(TrainGroup == 1, :);
+group = Labels(TrainGroup == 1, :);
+test = Labels(TrainGroup == 0, :);
+
+% Mauro's LDA
+[Labels_mauroLDA, ~, ~, ~] = LDA_traintest( training', group', sample', test', Opts);
+ACC_MauroLDA  = 1 - numel(find(Labels_mauroLDA ~= test))./numel(test)
+save('ACC_MauroLDA', 'ACC_MauroLDA');
+
+% Matlab's LDA
+% class = classify(sample, training, group);
+% ACC_LDA  = 1 - numel(find(class ~= test))./numel(test)
+% save('ACC_LDA', 'ACC_LDA');
+
 %% Compare the Performance
 
-fprintf('Comparison of errors: \n'); 
-find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda3.Test.errors)
-find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda4.Test.errors)
-find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_matlablda.Test.errors)
+% fprintf('Comparison of errors: \n'); 
+% find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda3.Test.errors)
+% find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_lda4.Test.errors)
+% find(ClassifierResults_lda2.Test.errors ~= ClassifierResults_matlablda.Test.errors)
 
-fprintf('Comparison of labels_node_pred: \n');
-find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda3.Test.Labels_node_pred{end})
-find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda4.Test.Labels_node_pred{end})
+% fprintf('Comparison of labels_node_pred: \n');
+% find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda3.Test.Labels_node_pred{end})
+% find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_lda4.Test.Labels_node_pred{end})
 % find(ClassifierResults_lda2.Test.Labels_node_pred{end} ~= ClassifierResults_matlablda.Test.Labels_node_pred{end})
 
-fprintf('Comparison of labels_node_prob: \n');
-find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda3.Test.Labels_node_prob{end})
-find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda4.Test.Labels_node_prob{end})
-find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_matlablda.Test.Labels_node_prob{end})
+% fprintf('Comparison of labels_node_prob: \n');
+% find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda3.Test.Labels_node_prob{end})
+% find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_lda4.Test.Labels_node_prob{end})
+% find(ClassifierResults_lda2.Test.Labels_node_prob{end} ~= ClassifierResults_matlablda.Test.Labels_node_prob{end})
 
-fprintf('Comparison of Labels: \n');
-find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda3.Test.Labels)
-find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda4.Test.Labels)
-find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_matlablda.Test.Labels)
+% fprintf('Comparison of Labels: \n');
+% find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda3.Test.Labels)
+% find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_lda4.Test.Labels)
+% find(ClassifierResults_lda2.Test.Labels ~= ClassifierResults_matlablda.Test.Labels)
 
-find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda3.Test.LabelsProb)
-find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda4.Test.LabelsProb)
-find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_matlablda.Test.LabelsProb)
+% find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda3.Test.LabelsProb)
+% find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_lda4.Test.LabelsProb)
+% find(ClassifierResults_lda2.Test.LabelsProb ~= ClassifierResults_matlablda.Test.LabelsProb)
 
 
 
