@@ -215,7 +215,47 @@ switch pDataSetName
         swap = randperm(N);
         X = X(:, swap);
         Labels = Labels(:, swap);        
+       
+
+    case 'MNIST_EasyTriple_T0.6K_t0.6K'
         
+        [X, vLabels]=Generate_MNIST([400, 400, 400], struct('Sampling', 'RandN', 'QueryDigits', [0, 1, 2], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+        
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+        swap = randperm(N);
+        X = X(:, swap);
+        Labels = Labels(:, swap);        
+        unique(Labels)
+ 
+
+    case 'MNIST_EasyTriple_T0.3K_t0.3K'
+        
+        [X, vLabels]=Generate_MNIST([200, 200, 200], struct('Sampling', 'RandN', 'QueryDigits', [0, 1, 2], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+        
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+        swap = randperm(N);
+        X = X(:, swap);
+        Labels = Labels(:, swap);        
+        
+ 
     case 'Gaussian_2'
         
         N = 500;
