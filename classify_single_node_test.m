@@ -30,7 +30,38 @@ dataLabels_test    = Labels_test(dataIdxs_test);
 
 % Test 
 if ~isempty(MRAClassifier.Classifier.Classifier{Opts.current_node_idx}),
-    [total_errors, labels_pred, labels_prob] = Opts.classifier( MRAClassifier.Classifier.Classifier{Opts.current_node_idx}, coeffs_test, dataLabels_test );
+    if isequal(Opts.classifier, @LOL_test)
+        task = {};
+        task.LOL_alg = Opts.LOL_alg;
+        %         task.ntrain = cp.TrainSize(1);
+        size(coeffs_test)
+        task.ntrain = size(coeffs_test, 1);
+        ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)))
+        Opts.task = task;
+        for i = 1:length(ks)
+            Opts.task.ks = ks(i);
+            %         [~,~,classifier_trained{i}] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
+            classifier_input = MRAClassifier.Classifier.Classifier{Opts.current_node_idx};
+%             whos classifier_input
+%             size(classifier_input)
+%             length(ks)
+%             classifier_input{1}
+%             classifier_input{2}
+%             disp('checking the dimension for projection of test data')
+%             size(coeffs_test)
+%             size(classifier_input{i}.Proj{1}.V)
+%             classifier_input{i}.Proj{1}
+            coeffs_test_projd = classifier_input{i}.Proj{1}.V * coeffs_test;
+%             size(coeffs_test_projd)
+%             disp('checking the dimension for projection of test data')
+            [total_errors, labels_pred, labels_prob] = Opts.classifier( classifier_input{i} , coeffs_test_projd, dataLabels_test );
+%             total_errors
+        end
+%         total_errors = total_errors_ks{1};
+    else
+        [total_errors, labels_pred, labels_prob] = Opts.classifier( MRAClassifier.Classifier.Classifier{Opts.current_node_idx}, coeffs_test, dataLabels_test );
+    end
+    
 elseif ~isempty(dataIdxs_test)
     labels_prob  = NaN(size(dataLabels_test))';
     labels_pred  = NaN(size(dataLabels_test))';

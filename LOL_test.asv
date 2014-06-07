@@ -19,18 +19,15 @@ function [n_errors, labels_pred, labels_prob] = LOL_test( classifier, data_test,
 if ~isempty(data_test) && ~isempty(classifier.W),
     % Use the model on test set
     for i = 1: size(classifier.W,1)
-        %         data_test_k = data_test{i}; % 1 by N_lol = 40
-        %         classifier_k = classifier.W{i}; % 1 by 2
-%         size(data_test)
-%         size([ones(size(data_test,2),1) data_test'])
-%         size(classifier.W{1}')
-%         i
-%         classifier.W{1}
+%         data_test_k = data_test{i}; % 1 by N_lol = 40
+%         classifier_k = classifier.W{i}; % 1 by 2
+% size([ones(size(data_test,2),1) data_test'])
+% size(classifier.W{1}')
         L = [ones(size(data_test,2),1) data_test'] * classifier.W{1}';
         % metis-partitioned-n by lol-reduced-p +1  *  lol-reduced-p +1 by 1
         P = exp(L) ./ repmat(sum(exp(L),2),[1 size(L,2)]);
         labels_prob = max(P,[],2);
-        labels_pred = (L< 0) + 1;
+        labels_pred = (L< 0) + 1
         labels_pred = classifier.ClassLabel(labels_pred);
         if (nargin>2) && (~isempty(labels_test)),
             n_errors = sum(labels_pred ~= labels_test');
@@ -45,7 +42,7 @@ if ~isempty(data_test) && ~isempty(classifier.W),
         %             n_errors = NaN;
         %         end;
     end
-else
+else 
     if isempty(classifier.W),
         dbstop,          %DBG
     end;

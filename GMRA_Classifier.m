@@ -50,6 +50,9 @@ end;
 if ~isfield(Opts,'Classifier'),
     Opts.Classifier = @LDA_traintest;
 end;
+if ~isfield(Opts,'LOL_alg'), % Added for LOL classifier
+    Opts.LOL_alg = {};
+end;
 
 fcn_train_single_node   = @classify_single_node_train;
 fcn_traincv_single_node = @classify_single_node_crossvalidation;
@@ -115,10 +118,11 @@ if (length(root_idx) > 1)
     fprintf( 'cp contains too many root nodes (cp == 0)!! \n' );
     return;
 end;
-
+               
 % This routine calculates errors for the children of the current node so we need to first calculate the root node error
 [total_errors, std_errors] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
-                                    struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier) );
+                                    struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
+                                    'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
 
 % Record the results for the root node
 results(root_idx).self_error = total_errors;
@@ -141,7 +145,8 @@ while (~activenode_idxs.isEmpty())
     for current_child_idx = current_children_idxs,        
         % Calculate the error on the current child
         [total_errors, std_errors] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
-            struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier) );                
+            struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
+             'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
         results(current_child_idx).self_error           = total_errors;                 % Record the results for the current child
         results(current_child_idx).self_std             = std_errors;
         results(current_child_idx).error_value_to_use   = UNDECIDED;
@@ -264,7 +269,8 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
     current_node_idx = MRA.Classifier.activenode_idxs(k);
     [MRA.Classifier.Classifier{current_node_idx},dataIdxs_train] = ...
         fcn_train_single_node( MRA.Data_train_GWT, Labels_train, ...
-                struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier) );
+                struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
+               'LOL_alg',Opts.LOL_alg ) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
 MRA.results = results;

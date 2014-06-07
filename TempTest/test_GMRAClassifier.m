@@ -27,7 +27,7 @@ pDataSetIdx = input('Pick a data set to test: \n');
 
 %% Pick a classifier 
 
-pClassifierNames  = {'LDA', 'matlab_LDA', 'QDA', 'LOL'};
+pClassifierNames  = {'LDA', 'matlab_LDA', 'QDA', 'LOL: LDA', 'LOL: LOL'};
 
 fprintf('\n Classifiers:\n');
 for k = 1:length(pClassifierNames),
@@ -46,7 +46,7 @@ addpath(genpath('/home/collabor/yb8/DiffusionGeometry/'))
 
 % Add Classifier directory
 for k = 1: n_classifiers
-    [classifier_train{k}, classifier_test{k}] = AccessAlg(pClassifierNames{pClassifierIdx(k)});
+    [classifier_train{k}, classifier_test{k}, LOL_alg{k}] = AccessAlg(pClassifierNames{pClassifierIdx(k)});
 end
 
 for k = 1: n_classifiers
@@ -54,8 +54,17 @@ for k = 1: n_classifiers
        Opts.debugMRA = MRA{1}.debugMRA; % to use the same MRA for both classifiers.
     end
    Opts.Classifier = classifier_train{k};
+   Opts.LOL_alg = LOL_alg{k};
    MRA{k} = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-   ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k});
+   MRA{1}
+   MRA{1}.cp
+   MRA{1}.Classifier.Classifier
+   isempty(MRA{1}.Classifier.Classifier)
+%    MRA{1}.Classifier.Classifier{end}{1}.W{1}
+   MRA{1}.Classifier.activenode_idxs
+   Opts = [];
+   Opts.LOL_alg = LOL_alg{k};
+   ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
 end
 
 

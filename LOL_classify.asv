@@ -30,10 +30,11 @@ else % For supervised_GMRA application
     deciders{1}{1}='linear';
 end
 
+disp('locating the data')
 % LOL Input: data: D by N, group: 1 by N
-group = double(group); % As LOL uses isnan
+A = unique(group)
 [Proj, P] = LOL(training',group,transformers,task.Kmax);
-
+disp('1')
 Yhat=cell(length(task.types),1);
 boundary = cell(length(task.types),1); % variable added for classify_single_node_train for supervised_GMRA
 
@@ -50,3 +51,4 @@ for i=1:length(transformers)
         [Yhat{k}, boundary] = decide(Xtest,Xtrain,group,deciders{i}{j},task.ks); % 'boundary' added for classify_single_node_train for supervised_GMRA
     end
 end
+disp('2')

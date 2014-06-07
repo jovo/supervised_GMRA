@@ -11,23 +11,14 @@ if ~isfield(Opts,'Priors'),     Opts.Priors = [];   end;
 % task.ntrain = size(data_train',2);
 % task.ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)));
 % Nks=length(task.ks);
-% Nks=length(task.ks);
+task = Opts.task
+Nks=length(task.ks);
        
 % disp('a')
 % size(data_test)
 % Train LOL classifier
-
-% LOL_classify input: data: N by D, 1 by N
-[labels_pred, Proj, P, boundary] = LOL_classify(data_test',data_train',labels_train', Opts.task);
-labels_pred = labels_pred{1}';
-% if isempty(data_test)
-    classifier.W = boundary;
-    classifier.Proj = Proj;
-    classifier.ClassLabel = unique(labels_train)';    
-% end
-
-n_errors = 0;
-labels_prob = [];
+[labels_pred', Proj, P, boundary] = LOL_classify(data_test',data_train',labels_train', task);
+labels_pred = lab
 % classifier.W = boundary;
 % classifier.Proj = Proj;
 % classifier.ClassLabel = unique(labels_train)';

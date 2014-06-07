@@ -38,33 +38,89 @@ labels = Y(idx, :);
 clear X Y
 
 Ntrain = 30; Ntest = N - Ntrain;
-data_train = data(1:Ntrain, :);
+data_train = data(1:Ntrain, :); % N by d
 data_test = data(Ntrain+1:end, :);
 labels_train = labels(1:Ntrain, :);
 labels_test = labels(Ntrain+1:end, :);
 
 clear idx data labels 
 whos
-
-% training = meas(training_idx, 3:4);
-% sample = meas(test_idx, 3:4);
-% group_test = speciesNum(test_idx);
-% group_train = speciesNum(training_idx);
 % 
-% % Scatter for training_idx
-% SL_test =  meas(test_idx,3);
-% SW_test =  meas(test_idx,4);
-% SL_train = meas(training_idx,3);
-% SW_train = meas(training_idx,4);
+% % Checking whether data_test = [] affects the output of boundary
+% [CLASS, ~,~,~,COEF] = classify(data_test(:,1),data_train(:,1),labels_train, 'linear');
+% cof = [COEF(1,2).const; COEF(1,2).linear]
+% % data_test = [];
+% size(data_test)
+% size(data_train)
+% size(labels_train)
+% [CLASS2,~,~,~,COEF2] = classify([],data_train(:,1),labels_train, 'linear');
+% cof2 = [COEF2(1,2).const; COEF2(1,2).linear]
 % 
+% % Testing with one group
+% labels_train(:) = 1;
+% [CLASS3,~,~,~,COEF3] = classify(data_test,data_train,labels_train, 'linear');
+% cof3 = [COEF3(1,2).const; COEF3(1,2).linear]
+% %  CLASS3 is output but there is no coef3 if labels_train is unique.
+% labels_train(:) = 1;
+% [CLASS4,~,~,~,COEF4] = classify([],data_train,labels_train, 'linear');
+% cof4 = [COEF4(1,2).const; COEF4(1,2).linear]
+% return;
+% % => Nope it doesn't!
 
-% data: n by d, labels: n by 1, yet input as d by n and n by 1.
+% data: N by D, labels: N by 1, yet input as d by n and n by 1.
 Opts = [];
 [labels_pred_LDA, n_errors_LDA, classifier_LDA, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
-Opts.GMRAClassifier = {'DENL'};
-[labels_pred_GMRALOL, n_errors_GMRALOL, classifier_GMRALOL, ~] = LOL_traintest( data_train, labels_train, data_test, labels_test, Opts );
-Opts.GMRAClassifier = {'NNNL'};
-[labels_pred_GMRALDA, n_errors_GMRALDA, classifier_GMRALDA, ~] = LOL_traintest( data_train, labels_train, data_test, labels_test, Opts );
+
+% labels_test = [];
+% [labels_pred_LDA2, n_errors_LDA2, classifier_LDA2, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
+
+% LOL_traintest input: data: D by N, labels: N by 1  
+Opts.LOL_alg = 'NNNL';
+[ task, ks] = set_task_LOL( Opts, size(data_train,2) );
+Opts.task = task;
+for i = 1:length(ks)
+    Opts.task.ks = ks(i);
+    [labels_pred_GMRALOL{i}, n_errors_GMRALOL{i}, classifier_GMRALOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
+    ERR_GMRALOL(i) = sum(labels_pred_GMRALOL{i} ~= labels_test)
+    data_test_projd{i} = classifier_GMRALOL{i}.Proj{1}.V * data_test';
+end
+% n_errors_GMRALOL
+% [minerr, minkidx] = min(ERR_GMRALOL)
+% ks
+% mink = ks(minkidx)
+% classifier_GMRALOL
+% classifier_GMRALOL{minkidx}
+% size(classifier_GMRALOL{minkidx}.Proj{1}.V)
+% size(data_test)
+
+% data_test_projd = classifier_GMRALOL{minkidx}.Proj{1}.V *  data_test';
+
+for i = 1:length(ks)
+    [n_errors, labels_pred, labels_prob] = LOL_test(classifier_GMRALOL{i}, data_test_projd{i}, labels_test );
+    ERR_GMRALOL_test(i) = sum(labels_pred_GMRALOL{i} ~= labels_test)
+end
+
+
+return;
+% LOL_traintest input: data: D by N, labels: N by 1  
+Opts.LOL_alg = 'DENL';
+[ task, ks] = set_task_LOL( Opts, size(data_train,2) );
+Opts.task = task;
+for i = 1:length(ks)
+    Opts.task.ks = ks(i);
+    [labels_pred_GMRALOL{i}, n_errors_GMRALOL{i}, classifier_GMRALOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
+    ERR_GMRALOL{i} = sum(labels_pred_GMRALOL{i} ~= labels_test)
+end
+
+
+
+
+
+
+% Opts.LOL_alg = {'NNNL'};
+% [ task, ks] = set_task_LOL( Opts, size(data_train,2) )
+% Opts.task = task;
+% [labels_pred_GMRALDA, n_errors_GMRALDA, classifier_GMRALDA, ~] = LOL_traintest( data_train, labels_train, data_test, labels_test, Opts );
 
 % classifier_LDA.W(1,:) - classifier_LDA.W(2,:) == classifier_GMRALDA.W{3}
  

@@ -1,4 +1,4 @@
-function ClassifierResults = GMRA_Classifier_test( MRA, X, TrainGroup, Y, classifier )
+function ClassifierResults = GMRA_Classifier_test( MRA, X, TrainGroup, Y, classifier, Opts )
 
 %
 % function MRA = GMRA_Classifier_test( MRA, X, TrainGroup, Y )
@@ -34,7 +34,8 @@ else
     Data_test           = X(:,TrainGroup==0);
     MRA.Data_test_GWT   = FGWT( MRA , Data_test );                      % The classifier works on the GWT side
     MRA.Labels_test     = Y(TrainGroup==0);
-    
+    disp('length of the activnodes')
+    length(MRA.Classifier.activenode_idxs)
     % Go through the active nodes in the classifier and classify the test points in there
     for k = 1:length(MRA.Classifier.activenode_idxs),
         current_node_idx = MRA.Classifier.activenode_idxs(k);
@@ -42,7 +43,8 @@ else
         % Classify on the k-th active node, using its corresponding classifier
         [ClassifierResults.Test.errors(current_node_idx),ClassifierResults.Test.Labels_node_pred{current_node_idx},dataIdxs_test, ...
             ClassifierResults.Test.Labels_node_prob{current_node_idx}] = ...
-            fcn_test_single_node( MRA, MRA.Data_test_GWT, MRA.Labels_test, struct('classifier', classifier, 'current_node_idx',current_node_idx, 'COMBINED',COMBINED) );
+            fcn_test_single_node( MRA, MRA.Data_test_GWT, MRA.Labels_test, struct('classifier', classifier, 'current_node_idx',current_node_idx, ...
+            'LOL_alg',Opts.LOL_alg, 'COMBINED',COMBINED) );
         
         % String the predicted labels in an easily accessible vector
         ClassifierResults.Test.Labels(dataIdxs_test)     = ClassifierResults.Test.Labels_node_pred{current_node_idx};
