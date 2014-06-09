@@ -27,6 +27,28 @@ switch pDataSetName
         TrainGroup = [ones(1, size(Xtrain, 2)) zeros(1, size(Xtest, 2))];
         Labels = [Ytrain Ytest];
         
+    case 'MNIST_HardBinary_T2.5K_t2.5K'
+        
+        [X, vLabels]=Generate_MNIST([1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], ...
+            struct('Sampling', 'RandN', 'QueryDigits', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [N, D] = size(X);
+        X = X';                         %   X : D by N matrix of N points in D dimensions
+        
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+        
+        % Making the labels to binary classification 01234 vs. 56789
+        Labels(Labels<5) = 0; Labels(Labels>=5) = 1;
+        
+        %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
+        TrainGroup = zeros(1,N);
+        training_idx = 1:N.*1/2;
+        TrainGroup(training_idx) = 1;
+        
+        swap = randperm(N);
+        X = X(:, swap);
+        Labels = Labels(:, swap);
+        %         TrainGroup = TrainGroup(:, swap);
         
     case 'MNIST_EasyBinary_T2.5K_t2.5K'
         

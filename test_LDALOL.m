@@ -67,6 +67,36 @@ whos
 % return;
 % % => Nope it doesn't!
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Let's try the MNIST data here.
+% LoadData
+
+%% Pick a data set
+
+pDataSetNames  = {'MNIST_HardBinary_T60K_t10K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'Gaussian_2', 'FisherIris' };
+    
+fprintf('\n Data Sets:\n');
+for k = 1:length(pDataSetNames),
+    fprintf('\n [%d] %s',k,pDataSetNames{k});
+end;
+fprintf('\n\n  ');
+
+pDataSetIdx = input('Pick a data set to test: \n');
+
+%% Load the data set
+
+[X, TrainGroup, Labels] = LoadData(pDataSetNames{pDataSetIdx});
+
+data_train   = X(:, TrainGroup == 1)';
+data_test    = X(:, TrainGroup == 0)';
+labels_train = Labels(:, TrainGroup == 1)';
+labels_test  = Labels(:, TrainGroup == 0)';
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 % data: N by D, labels: N by 1, yet input as d by n and n by 1.
 Opts = [];
 [labels_pred_LDA, n_errors_LDA, classifier_LDA, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
@@ -75,7 +105,7 @@ Opts = [];
 % [labels_pred_LDA2, n_errors_LDA2, classifier_LDA2, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
 
 % LOL_traintest input: data: D by N, labels: N by 1  
-Opts.LOL_alg = 'NNNL';
+Opts.LOL_alg = 'DENL';
 [ task, ks] = set_task_LOL( Opts, size(data_train,2) );
 Opts.task = task;
 for i = 1:length(ks)
