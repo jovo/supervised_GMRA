@@ -14,7 +14,7 @@ if ~isfield(Opts,'Priors'),     Opts.Priors = [];   end;
 task = Opts.task
 Nks=length(task.ks);
        
-disp('a')
+disp('1a')
 size(data_test)
 % Train LOL classifier
 [labels_pred, Proj, P, boundary] = LOL_classify(data_test',data_train',labels_train', task);
@@ -23,17 +23,17 @@ classifier.Proj = Proj;
 classifier.ClassLabel = unique(labels_train)';
 labels_prob = [];
 n_errors = sum(labels_pred ~= labels_test');
-disp('b')
+disp('1b')
 % Projection of test data
 % for i=1:Nks
 %     proj = Proj{1}.V(1:task.ks(i),:);
 %     data_test_projd{i}= proj*data_test;
 % end
 
-disp('c')
+disp('1c')
 % Test LDA classifier
 % [n_errors, labels_pred, labels_prob] = LOL_test( classifier, data_test_projd{1}, labels_test );
 [n_errors, labels_pred, labels_prob] = LOL_test( classifier, data_test_projd{1}, labels_test );
-disp('d')
+disp('1d')
 size(labels_pred)
 end

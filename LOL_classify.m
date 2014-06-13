@@ -10,7 +10,7 @@ function [Yhat, Proj, P, boundary] = LOL_classify(sample,training,group,task)
 % NNNQ = QDA
 %% 
 
-
+% disp('aa')
 if ~isfield(task, 'LOL_alg')
     [transformers, deciders] = parse_algs(task.types);
 else % For supervised_GMRA application
@@ -29,14 +29,19 @@ else % For supervised_GMRA application
     end
     deciders{1}{1}='linear';
 end
-
+% disp('bb')
+% size(training')
+% size(group)
+% task.Kmax
 % LOL Input: data: D by N, group: 1 by N
 group = double(group); % As LOL uses isnan
 [Proj, P] = LOL(training',group,transformers,task.Kmax);
-
+% disp('cc')
 Yhat=cell(length(task.types),1);
 boundary = cell(length(task.types),1); % variable added for classify_single_node_train for supervised_GMRA
-
+disp('checking the size of the projection matrix and the matrix, sample')
+size(Proj{1}.V)
+size(sample')
 k=0;
 for i=1:length(transformers)
     if ~isempty(sample)

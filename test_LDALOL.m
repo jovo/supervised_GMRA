@@ -45,6 +45,23 @@ labels_test = labels(Ntrain+1:end, :);
 
 clear idx data labels 
 whos
+
+Opts.LOL_alg = 'DENL';
+[ task, ks] = set_task_LOL( Opts, size(data_train,2) )
+
+
+Opts.task = task;
+for i = 1:length(ks)
+    ks(i)
+	Opts.task.ks = ks(i);
+    [labels_pred_GMRALOL{i}, n_errors_GMRALOL{i}, classifier_GMRALOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
+    ERR_GMRALOL(i) = sum(labels_pred_GMRALOL{i} ~= labels_test);
+    data_test_projd{i} = classifier_GMRALOL{i}.Proj{1}.V * data_test';
+end
+
+ACC_GMRALOL = 1 - ERR_GMRALOL./numel(labels_test) 
+ 
+
 % 
 % % Checking whether data_test = [] affects the output of boundary
 % [CLASS, ~,~,~,COEF] = classify(data_test(:,1),data_train(:,1),labels_train, 'linear');
@@ -74,7 +91,7 @@ whos
 
 %% Pick a data set
 
-pDataSetNames  = {'MNIST_HardBinary_T60K_t10K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'Gaussian_2', 'FisherIris' };
+pDataSetNames  = {'MNIST_HardBinary_T60K_t10K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
     
 fprintf('\n Data Sets:\n');
 for k = 1:length(pDataSetNames),
@@ -96,10 +113,16 @@ labels_test  = Labels(:, TrainGroup == 0)';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Let's test the LDA first with both mauro's LDA and the matlab LDA.
+% matlab LDA could be used to test whether the covariance matrix has a positive definite.
 
 % data: N by D, labels: N by 1, yet input as d by n and n by 1.
 Opts = [];
 [labels_pred_LDA, n_errors_LDA, classifier_LDA, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
+ERR_LDA = sum(labels_pred_LDA ~= labels_test');
+ACC_LDA = 1- ERR_LDA./numel(labels_test);
+% [CLASS] = classify(data_test, data_train, labels_train, 'linear')
+
 
 % labels_test = [];
 % [labels_pred_LDA2, n_errors_LDA2, classifier_LDA2, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
@@ -107,13 +130,57 @@ Opts = [];
 % LOL_traintest input: data: D by N, labels: N by 1  
 Opts.LOL_alg = 'DENL';
 [ task, ks] = set_task_LOL( Opts, size(data_train,2) );
+ks
+
+
 Opts.task = task;
 for i = 1:length(ks)
-    Opts.task.ks = ks(i);
+    	disp('this time the k is: ')
+	ks(i)
+	Opts.task.ks = ks(i);
     [labels_pred_GMRALOL{i}, n_errors_GMRALOL{i}, classifier_GMRALOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
-    ERR_GMRALOL(i) = sum(labels_pred_GMRALOL{i} ~= labels_test)
+    ERR_GMRALOL(i) = sum(labels_pred_GMRALOL{i} ~= labels_test);
     data_test_projd{i} = classifier_GMRALOL{i}.Proj{1}.V * data_test';
 end
+
+ACC_GMRALOL = 1 - ERR_GMRALOL./numel(labels_test) ;
+max(ACC_GMRALOL)
+min(ACC_GMRALOL)
+classifier_GMRALOL{1}
+classifier_GMRALOL{end}
+
+
+% LEt's test for classify_cv and classify_train
+disp('Testing the CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV')
+Opts.LOL_alg = 'DENL';
+[ task, ks] = set_task_LOL( Opts, size(data_train,2) );
+ks
+
+data_test_CV = [];
+labels_test_CV = [];
+Opts.task = task;
+for i = 1:length(ks)
+    	disp('this time the k is: ')
+	ks(i)
+	Opts.task.ks = ks(i);
+    [labels_pred_GMRALOL_CV{i}, n_errors_GMRALOL{i}, classifier_GMRALOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test_CV', labels_test_CV, Opts );
+
+%    ERR_GMRALOL(i) = sum(labels_pred_GMRALOL_CV{i} ~= labels_test);
+    data_test_projd{i} = classifier_GMRALOL{i}.Proj{1}.V * data_test';
+end
+labels_pred_GMRALOL_CV
+% ACC_GMRALOL_CV = 1 - ERR_GMRALOL./numel(labels_test) ;
+% max(ACC_GMRALOL)
+% min(ACC_GMRALOL)
+% classifier_GMRALOL{1}
+% classifier_GMRALOL{end}
+
+
+
+
+disp('TEST stage TEST stage TEST stage TEST stage TEST stage TEST stage TEST stage')
+
+
 % n_errors_GMRALOL
 % [minerr, minkidx] = min(ERR_GMRALOL)
 % ks
@@ -126,12 +193,18 @@ end
 % data_test_projd = classifier_GMRALOL{minkidx}.Proj{1}.V *  data_test';
 
 for i = 1:length(ks)
-    [n_errors, labels_pred, labels_prob] = LOL_test(classifier_GMRALOL{i}, data_test_projd{i}, labels_test );
-    ERR_GMRALOL_test(i) = sum(labels_pred_GMRALOL{i} ~= labels_test)
+  %  [n_errors, labels_pred, labels_prob] = LOL_test(classifier_GMRALOL{i}, data_test_projd{i}, labels_test );
+    [n_errors, labels_pred, labels_prob] = LDA_test(classifier_GMRALOL{i}, data_test_projd{i}, labels_test );
+    ERR_GMRALOL_test(i) = sum(labels_pred ~= labels_test');
 end
+ERR_GMRALOL_test
 
+ACC_GMRALOL_test = 1 - ERR_GMRALOL_test./numel(labels_test) ;
+max(ACC_GMRALOL_test)
+min(ACC_GMRALOL_test)
 
-return;
+return; 
+
 % LOL_traintest input: data: D by N, labels: N by 1  
 Opts.LOL_alg = 'DENL';
 [ task, ks] = set_task_LOL( Opts, size(data_train,2) );

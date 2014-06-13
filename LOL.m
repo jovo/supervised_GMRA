@@ -11,7 +11,10 @@ function [Proj, P] = LOL(X,Y,types,Kmax)
 %       F/R/N: fast, robust, normal
 % Kmax in Z: max dimension to project into
 
-
+% disp('input values')
+% size(X)
+% size(Y)
+% Kmax
 %% get means
 ntypes=length(types);
 P.groups=unique(Y);
@@ -32,7 +35,7 @@ P.groups=P.groups(IX);
 P.mu=P.mu(:,IX);
 for k=1:P.Ngroups, P.idx{k}=idx{IX(k)}; end
 if nargin<4, Kmax=min(P.n,P.D); end
-
+% disp('aaa')
 %% get delta matrix (in R^{D x K-1}
 Ds=nan(ntypes,1);
 for i=1:ntypes, Ds(i)=types{i}(1); end; Ds=char(Ds)';
@@ -48,13 +51,13 @@ if any(strfind(Ds,'D')),
     end
     P.delta=bsxfun(@minus,mu(:,2:end),mu(:,1));
 end
-
+% disp('bbb')
 if any(strfind(Ds,'S')),
     [~,idx] = sort(abs(P.delta),'descend');
     P.sdelta=P.delta;
     P.sdelta(idx(10:end))=0;
 end
-
+% disp('ccc')
 %% get eigenvectors (or approximations thereof)
 Vs=nan(ntypes,1); Fs=nan(ntypes,1);
 for i=1:ntypes, Vs(i)=types{i}(2); end; Vs=char(Vs)';
@@ -76,11 +79,15 @@ if any(strfind(Vs,'V')), get_Varied_Subspaces=true; else get_Varied_Subspaces=fa
 if any(strfind(Vs,'R')), get_Random_Subspaces=true; else get_Random_Subspaces=false; end
 if any(strfind(Vs,'N')), no_embed = true;           else no_embed=false; end
 
-
 % if subspaces are shared
 if get_Equal_Subspaces
     if get_EN==true
-        [P.ds,Ve] = get_svd(X,P.n,P.D,'N');
+        % disp('size of X')
+	% size(X)
+	[P.ds,Ve] = get_svd(X,P.n,P.D,'N');
+	% size(P.ds)
+	% disp('size of Ve')
+	% size(Ve)
     end
     if get_EF==true
         [P.dsf,Vef] = get_svd(X,P.n,P.D,'F');
@@ -107,7 +114,7 @@ if get_Varied_Subspaces
     [P.dv, idx]=sort(dv,'descend');
     Vv=Vv(:,idx)';
 end
-
+% disp('eee')
 %% generate projection matrices
 Proj=cell(1:ntypes);
 for i=1:ntypes
@@ -121,7 +128,13 @@ for i=1:ntypes
         end
         if strcmp(types{i}(2),'E')
             if strcmp(types{i}(3),'N')
-                [V, ~] = qr([delta,Ve'],0);
+		% disp('size of delta')
+		% size(delta)
+		% disp('size of Ve transpose')
+		% size(Ve')
+		% size([delta, Ve'])
+		[V, ~] = qr([delta,Ve'],0);
+		% size(V)
             elseif strcmp(types{i}(3),'F')
                 [V, ~] = qr([delta,Vef'],0);
             end
@@ -134,7 +147,20 @@ for i=1:ntypes
         end
         siz=size(V);
         if Kmax>siz(1), temp=siz(1); else temp=Kmax; end
-        Proj{i}.V = V(:,1:temp)';
+	disp('checking Kmax size(V,1) size(V,2)')
+        Kmax
+	size(V,1)
+	size(V,2)
+	if temp > siz(2)
+		disp('LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL')
+	end
+%	temp = min([Kmax size(V,1) size(V,2)])
+%	disp('size of V')
+%	size(V)
+%	disp('temp')
+%	temp
+	Proj{i}.V = V(:,1:temp)';
+%	disp('cat')
     elseif strcmp(types{i}(1),'N')
         if strcmp(types{i}(2),'E')
             siz=size(Ve);
@@ -159,7 +185,9 @@ for i=1:ntypes
         end
         
     end
+%	disp('dog')
     Proj{i}.name=types{i};
+%    disp('123a')
 end
 
 
@@ -167,9 +195,15 @@ function [d,V] = get_svd(X,n,D,type)
 
 if strcmp(type,'N')
     if n>D
-        [~,d,V] = svd(X',0);
+        [~,d,V] = svd(X');
+	disp('n>D: checking the size of X_transpose and V')
+	size(X')
+	size(V)
     else
-        [V,d,~] = svd(X,0);
+        [V,d,~] = svd(X);
+	disp('n<=D: checking the size of X and V')
+    	size(X)
+	size(V)
     end
     d=diag(d);
     

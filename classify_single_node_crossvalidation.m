@@ -37,16 +37,18 @@ if (node_cats>1) && (node_pts>node_cats) && size(Data_GWT,1)>0
         %         %         task.ntrain = cp.TrainSize(1);
         %         task.ntrain = size(coeffs, 1);
         %         ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)));
-        [task, ks] = set_task_LOL(Opts, size(coeffs,1));
-        Opts.task = task;
+        size(coeffs,1)
+	[task, ks] = set_task_LOL(Opts, size(coeffs,1));
+        ks
+	Opts.task = task;
         % run the crossval for all ks
         for i = 1:length(ks)
-            %         disp('displaying the k')
-            %         ks(i)
+            disp('displaying the k')
+            ks(i)
             Opts.task.ks = ks(i);
             classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
             cvMCR = crossval('mcr',coeffs',dataLabels','predfun', classf,'partition',cp,'Options',opts);
-            total_errors_ks(i)    = cvMCR*length(dataLabels);
+            total_errors_ks(i)    = cvMCR*length(dataLabels)
         end
         disp('total_errors_ks')
         total_errors_ks

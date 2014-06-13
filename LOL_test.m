@@ -22,18 +22,21 @@ if ~isempty(data_test) && ~isempty(classifier.W),
         %         data_test_k = data_test{i}; % 1 by N_lol = 40
         %         classifier_k = classifier.W{i}; % 1 by 2
 %         size(data_test)
-%         size([ones(size(data_test,2),1) data_test'])
+%	size([ones(size(data_test,2),1) data_test'])
 %         size(classifier.W{1}')
 %         i
-%         classifier.W{1}
-        L = [ones(size(data_test,2),1) data_test'] * classifier.W{1}';
+	
+        L = [ones(size(data_test,2),1) data_test'] * classifier.W';
         % metis-partitioned-n by lol-reduced-p +1  *  lol-reduced-p +1 by 1
         P = exp(L) ./ repmat(sum(exp(L),2),[1 size(L,2)]);
         labels_prob = max(P,[],2);
         labels_pred = (L< 0) + 1;
         labels_pred = classifier.ClassLabel(labels_pred);
         if (nargin>2) && (~isempty(labels_test)),
-            n_errors = sum(labels_pred ~= labels_test');
+            	disp('checking the size of labels_pred and labels_test_transpose')
+		size(labels_pred)
+		size(labels_test')
+		n_errors = sum(labels_pred ~= labels_test');
         else
             n_errors = NaN;
         end;
