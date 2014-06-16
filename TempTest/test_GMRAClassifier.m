@@ -11,7 +11,7 @@ addpath(genpath(pwd));
 
 %% Pick a data set
 
-pDataSetNames  = {'MNIST_HardBinary_T60K_t10K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
+pDataSetNames  = {'MNIST_HardBinary_T60K_t10K', 'MNIST_HardBinary_T5.0K_t5.0K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
     
 fprintf('\n Data Sets:\n');
 for k = 1:length(pDataSetNames),
@@ -64,7 +64,9 @@ for k = 1: n_classifiers
    MRA{1}.Classifier.activenode_idxs
    Opts = [];
    Opts.LOL_alg = LOL_alg{k};
-   ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
+	disp('checking the classifier input to GMRA_Classifier_test')
+	MRA{1}.Classifier.Classifier
+  ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
 end
 
 
@@ -91,13 +93,25 @@ end
 % 
 
 %% Accuracy
-
-for k = 1: n_classifiers
-    ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
+whos Labels
+Y = double(Labels);
+labels_test = Y(TrainGroup == 0);
+for i = 1: length(MRA{1}.Classifier.activenode_idxs)
+	thisnode = ClassifierResults{1}.Test.Labels.labels_pred{i};
+	node_idx = ClassifierResults{1}.Test.Labels.idx{i};
+	node_true = labels_test(node_idx);
+	for j = 1: length(thisnode)
+		size(node_true')
+		size(thisnode{j})
+		node_error(j) = sum(node_true' ~= thisnode{j});
+	end
+	min_node_error(i) = min(node_error);
 end
+	
+    ACC_GMRAClassifier = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
 
-save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
-
+% save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
+return;
 %% Accuracy of Simple-LDA for comparison
 X = X'; Labels = Labels'; % D by N to N by D
 sample = X(TrainGroup == 0, :);

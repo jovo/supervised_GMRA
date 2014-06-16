@@ -34,9 +34,9 @@ if ~isempty(MRAClassifier.Classifier.Classifier{Opts.current_node_idx}),
         task = {};
         task.LOL_alg = Opts.LOL_alg;
         %         task.ntrain = cp.TrainSize(1);
-        size(coeffs_test)
+%        size(coeffs_test)
         task.ntrain = size(coeffs_test, 1);
-        ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)))
+        ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)));
         Opts.task = task;
         for i = 1:length(ks)
             Opts.task.ks = ks(i);
@@ -52,9 +52,12 @@ if ~isempty(MRAClassifier.Classifier.Classifier{Opts.current_node_idx}),
 %             size(classifier_input{i}.Proj{1}.V)
 %             classifier_input{i}.Proj{1}
             coeffs_test_projd = classifier_input{i}.Proj{1}.V * coeffs_test;
+%	    	disp('checking the size of classifier_input{i} in hope of finding the boundary')
+%		whos classifier_input{i}
+%		size(classifier_input{i})
 %             size(coeffs_test_projd)
 %             disp('checking the dimension for projection of test data')
-            [total_errors, labels_pred, labels_prob] = Opts.classifier( classifier_input{i} , coeffs_test_projd, dataLabels_test );
+            [total_errors, labels_pred{i}, labels_prob] = Opts.classifier( classifier_input{i} , coeffs_test_projd, dataLabels_test );
 %             total_errors
         end
 %         total_errors = total_errors_ks{1};
@@ -63,6 +66,7 @@ if ~isempty(MRAClassifier.Classifier.Classifier{Opts.current_node_idx}),
     end
     
 elseif ~isempty(dataIdxs_test)
+disp('not something I expect!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     labels_prob  = NaN(size(dataLabels_test))';
     labels_pred  = NaN(size(dataLabels_test))';
     total_errors = sum(dataLabels_test~=labels_pred');

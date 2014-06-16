@@ -1,5 +1,11 @@
 function [n_errors, labels_pred, labels_prob] = LDA_test( classifier, data_test, labels_test )
 
+% disp('checking the size of classifier, classifier.W and the data_test')
+% size(classifier)
+% size(classifier{1})
+% size(classifier{1}.W)
+% size(classifier.W)
+% size(data_test)
 if ~isempty(data_test) && ~isempty(classifier.W),    
     % Use the model on test set
     L = [ones(size(data_test,2),1) data_test'] * classifier.W';            

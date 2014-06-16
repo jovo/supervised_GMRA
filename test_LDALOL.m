@@ -91,7 +91,7 @@ ACC_GMRALOL = 1 - ERR_GMRALOL./numel(labels_test)
 
 %% Pick a data set
 
-pDataSetNames  = {'MNIST_HardBinary_T60K_t10K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
+pDataSetNames  = {'MNIST_HardBinary_T60K_t10K', 'MNIST_HardBinary_T5.0K_t5.0K', 'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
     
 fprintf('\n Data Sets:\n');
 for k = 1:length(pDataSetNames),
@@ -120,9 +120,47 @@ labels_test  = Labels(:, TrainGroup == 0)';
 Opts = [];
 [labels_pred_LDA, n_errors_LDA, classifier_LDA, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
 ERR_LDA = sum(labels_pred_LDA ~= labels_test');
-ACC_LDA = 1- ERR_LDA./numel(labels_test);
+disp('ACC_LDA:')
+ACC_LDA = 1- ERR_LDA./numel(labels_test)
 % [CLASS] = classify(data_test, data_train, labels_train, 'linear')
 
+
+
+
+% Let's test the crossval of lda vs. lol
+
+cp = cvpartition(labels_train,'k',10);
+opts = statset('UseParallel', 'never');
+% crossval of LDA_traintest %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Opts.Classifier = @LDA_traintest;
+classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
+cvMCR = crossval('mcr',data_train ,labels_train ,'predfun', classf,'partition',cp,'Options',opts)
+%           length(dataLabels)
+total_errors   = cvMCR*length(labels_train);
+
+
+% crossval of LOL_traintest %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Opts.LOL_alg = 'DENL';
+[ task, ks] = set_task_LOL( Opts, size(data_train,2) );
+ks
+
+Opts.task = task;
+Opts.Classifier = @LOL_traintest;
+
+for i = 1:length(ks)
+%         disp('displaying the k')
+%          ks(i)
+%	    disp('cross val start of loop')
+            Opts.task.ks = ks(i);
+            classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
+            cvMCR(i) = crossval('mcr',data_train ,labels_train ,'predfun', classf,'partition',cp,'Options',opts)
+%           length(dataLabels)
+	 total_errors_ks(i)    = cvMCR(i)*length(labels_train);
+end
+ 
+
+return;
 
 % labels_test = [];
 % [labels_pred_LDA2, n_errors_LDA2, classifier_LDA2, ~] = LDA_traintest( data_train', labels_train, data_test', labels_test, Opts );
@@ -135,21 +173,22 @@ ks
 
 Opts.task = task;
 for i = 1:length(ks)
-    	disp('this time the k is: ')
-	ks(i)
+%    	disp('this time the k is: ')
+%	ks(i)
 	Opts.task.ks = ks(i);
-    [labels_pred_GMRALOL{i}, n_errors_GMRALOL{i}, classifier_GMRALOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
-    ERR_GMRALOL(i) = sum(labels_pred_GMRALOL{i} ~= labels_test);
-    data_test_projd{i} = classifier_GMRALOL{i}.Proj{1}.V * data_test';
+    [labels_pred_LOL{i}, n_errors_LOL{i}, classifier_LOL{i}, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
+    ERR_LOL(i) = sum(labels_pred_LOL{i} ~= labels_test);
+    data_test_projd{i} = classifier_LOL{i}.Proj{1}.V * data_test';
 end
 
-ACC_GMRALOL = 1 - ERR_GMRALOL./numel(labels_test) ;
-max(ACC_GMRALOL)
-min(ACC_GMRALOL)
-classifier_GMRALOL{1}
-classifier_GMRALOL{end}
+ACC_LOL = 1 - ERR_LOL./numel(labels_test) ;
+disp('max and min of ACC_LOL')
+max(ACC_LOL)
+min(ACC_LOL)
+% classifier_LOL{1}
+% classifier_LOL{end}
 
-
+return;
 % LEt's test for classify_cv and classify_train
 disp('Testing the CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV CV')
 Opts.LOL_alg = 'DENL';

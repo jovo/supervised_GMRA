@@ -32,30 +32,42 @@ if (node_cats>1) && (node_pts>node_cats) && size(Data_GWT,1)>0
     cp = cvpartition(dataLabels,'k',10);
     opts = statset('UseParallel','never');                                                     % Matlab parallel CV is buggy. What a piece of junk.
     if isequal(Opts.Classifier, @LOL_traintest)
-        %         task = {};
-        %         task.LOL_alg = Opts.LOL_alg;
-        %         %         task.ntrain = cp.TrainSize(1);
-        %         task.ntrain = size(coeffs, 1);
-        %         ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)));
-        size(coeffs,1)
 	[task, ks] = set_task_LOL(Opts, size(coeffs,1));
-        ks
 	Opts.task = task;
-        % run the crossval for all ks
+	
+	N = size(coeffs, 2);
+	% Swap again in case the data was not mixed well.
+	swp_idx = randperm(N);
+	coeffs_swp = coeffs(:,swp_idx);
+	dataLabels_swp = dataLabels(swp_idx);
+	
+	% As here we use one-time check instead of crossval within training data for computation time,
+	% the ratio of the training vs. the test within training data here could affect the search for
+	% the appropriate choice of nodes and the k.
+	ratio = 1/10;
+	ntest = floor(ratio*N);
+	ntrain = N-ntest;
+
+	data_test = coeffs_swp(:, 1: ntest);
+	data_train = coeffs_swp(:, ntest+1: end);
+	labels_test = dataLabels_swp(1: ntest);
+	labels_train = dataLabels_swp(ntest+1: end);
+        whos	
         for i = 1:length(ks)
-            disp('displaying the k')
-            ks(i)
             Opts.task.ks = ks(i);
-            classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
-            cvMCR = crossval('mcr',coeffs',dataLabels','predfun', classf,'partition',cp,'Options',opts);
-            total_errors_ks(i)    = cvMCR*length(dataLabels)
-        end
-        disp('total_errors_ks')
-        total_errors_ks
-        [total_errors, min_ks] = min(total_errors_ks)
+	    [labels_pred_LOL{i}, n_errors_LOL{i}, classifier_LOL{i}, ~] = LOL_traintest( data_train , labels_train, data_test, labels_test, Opts );
+ 	     ERR_LOL(i) = sum(labels_pred_LOL{i} ~= labels_test');
+%		n_errors_LOL{i}
+%		ERR_LOL(i)
+%            classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
+%            cvMCR(i) = crossval('mcr',coeffs_swp',dataLabels_swp','predfun', classf,'partition',cp,'Options',opts)
+%   	    total_errors_ks(i)    = cvMCR(i)*length(dataLabels);
+	end
+       [total_errors, min_ks] = min(ERR_LOL);
+
     else
         classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));
-        cvMCR = crossval('mcr',coeffs',dataLabels','predfun', classf,'partition',cp,'Options',opts);
+        cvMCR = crossval('mcr',coeffs',dataLabels','predfun', classf,'partition',cp,'Options',opts)
         total_errors   = cvMCR*length(dataLabels);
     end
     std_errors      = 0;
@@ -63,5 +75,6 @@ else
     total_errors = Inf;
     std_errors   = Inf;
 end;
-
+disp('total_errors')
+total_errors
 return;

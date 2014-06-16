@@ -1,5 +1,5 @@
 function [Yhat, boundary] = decide(sample,training,group,classifier,ks)
-disp('start of decide')
+% disp('start of decide')
 Nks=length(ks);
 siz=size(sample);
 ntest=siz(2);
@@ -11,29 +11,29 @@ for i=1:Nks
             if isempty(sample)
                 sample_node = ones(1,ks(i));
             else
-		disp('disp the size of the sample and ks')
-		size(sample)
-		ks(i)
+%		disp('disp the size of the sample and ks')
+%		size(sample)
+%		ks(i)
                 sample_node = sample(1:ks(i),:)';
             end
             if ~isempty(sample_node)
         %       [Yhat(i,:), ~, ~, ~, coef]  = classify(sample_node,training(1:ks(i),:)',group,classifier);
-		disp('final input to the classifier: LDA_traintest')
-		size(training(1:ks(i),:))
-		size(group)
-		size(sample_node')
-		disp('end')
+%		disp('final input to the classifier: LDA_traintest')
+%		size(training(1:ks(i),:))
+%		size(group)
+%		size(sample_node')
+%		disp('end')
 		[Yhat(i,:), ~, coef, ~] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
 	    else	
 		disp('sample_node empty!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             end    
-            if numel(unique(group)) > 1
-        %        boundary{i} = [coef(1,2).const; coef(1,2).linear]'; % Added output variable boundary
+ %           if numel(unique(group)) > 1
+ %      %        boundary{i} = [coef(1,2).const; coef(1,2).linear]'; % Added output variable boundary
          	boundary{i} = coef;
-	    else 
-                boundary{i} = Inf;
-                disp('Alert!!!!!! Boundary set as inf because there was only one unique label in the node.')
-            end
+ %	    else 
+ %               boundary{i} = Inf;
+ %              disp('Alert!!!!!! Boundary set as inf because there was only one unique label in the node.')
+ %          end
         elseif strcmp(classifier,'NaiveBayes')
             nb = NaiveBayes.fit(training',group);
             Yhat = predict(nb,sample')';
@@ -62,4 +62,4 @@ for i=1:Nks
          break
      end
 end
-disp('end of decide.m')
+% disp('end of decide.m')

@@ -147,13 +147,15 @@ for i=1:ntypes
         end
         siz=size(V);
         if Kmax>siz(1), temp=siz(1); else temp=Kmax; end
-	disp('checking Kmax size(V,1) size(V,2)')
-        Kmax
-	size(V,1)
-	size(V,2)
-	if temp > siz(2)
-		disp('LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL')
-	end
+%	disp('checking Kmax size(V,1) size(V,2)')
+ %       Kmax
+%	size(V,1)
+%	size(V,2)
+
+%	if temp > siz(2)
+%		disp('LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL')
+%	end
+
 %	temp = min([Kmax size(V,1) size(V,2)])
 %	disp('size of V')
 %	size(V)
@@ -196,14 +198,14 @@ function [d,V] = get_svd(X,n,D,type)
 if strcmp(type,'N')
     if n>D
         [~,d,V] = svd(X');
-	disp('n>D: checking the size of X_transpose and V')
-	size(X')
-	size(V)
+%	disp('n>D: checking the size of X_transpose and V')
+%	size(X')
+%	size(V)
     else
         [V,d,~] = svd(X);
-	disp('n<=D: checking the size of X and V')
-    	size(X)
-	size(V)
+%	disp('n<=D: checking the size of X and V')
+ %   	size(X)
+%	size(V)
     end
     d=diag(d);
     

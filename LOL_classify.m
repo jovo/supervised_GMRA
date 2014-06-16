@@ -39,9 +39,9 @@ group = double(group); % As LOL uses isnan
 % disp('cc')
 Yhat=cell(length(task.types),1);
 boundary = cell(length(task.types),1); % variable added for classify_single_node_train for supervised_GMRA
-disp('checking the size of the projection matrix and the matrix, sample')
-size(Proj{1}.V)
-size(sample')
+% disp('checking the size of the projection matrix and the matrix, sample')
+% size(Proj{1}.V)
+% size(sample')
 k=0;
 for i=1:length(transformers)
     if ~isempty(sample)

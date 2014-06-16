@@ -123,7 +123,8 @@ end;
 [total_errors, std_errors] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
                                     struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
                                     'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
-
+disp('Lets look at the root node error')
+total_errors
 % Record the results for the root node
 results(root_idx).self_error = total_errors;
 results(root_idx).self_std = std_errors;
@@ -163,9 +164,14 @@ while (~activenode_idxs.isEmpty())
     
     % Compare children results to self error
     self_error = results(current_node_idx).self_error;
+	disp('compare the self_error and the children_error_sum')
+	self_error
+	children_error_sum
     if (self_error < children_error_sum)                                                % NOTE: slop based on std?
-        results(current_node_idx).error_value_to_use = USE_SELF;                        % Set status = USE_SELF        
+        disp('USE_SELF')
+	results(current_node_idx).error_value_to_use = USE_SELF;                        % Set status = USE_SELF        
     else        
+	disp('USE_CHILDREN')
         results(current_node_idx).error_value_to_use = USE_CHILDREN;                    % Set status = USE_CHILDREN                
         error_difference = self_error - children_error_sum;                             % Propagate difference up parent chain        
         for parent_node_idx = current_parents_idxs,                                     % Loop through list of parent nodes            
