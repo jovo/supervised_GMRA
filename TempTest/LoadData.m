@@ -17,7 +17,8 @@ switch pDataSetName
         dummy = load('labels_train.mat');
         Ytrain = dummy.labels_train;
         clear dummy
-        
+        size(Ytrain)
+	size(Ytest) 
         % Convert Y to binary classification problem
         Ytrain(Ytrain<5) = 0; Ytrain(Ytrain>=5) = 1;
         Ytest(Ytest<5) = 0; Ytest(Ytest>=5) = 1;
@@ -25,7 +26,9 @@ switch pDataSetName
         
         X = [Xtrain Xtest];
         TrainGroup = [ones(1, size(Xtrain, 2)) zeros(1, size(Xtest, 2))];
-        Labels = [Ytrain Ytest];
+        size(Ytrain)
+	size(Ytest)
+	Labels = [Ytrain Ytest];
         
     case 'MNIST_HardBinary_T5.0K_t5.0K'
         

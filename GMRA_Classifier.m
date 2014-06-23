@@ -120,7 +120,7 @@ if (length(root_idx) > 1)
 end;
                
 % This routine calculates errors for the children of the current node so we need to first calculate the root node error
-[total_errors, std_errors] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
+[total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
                                     struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
                                     'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
 disp('Lets look at the root node error')
@@ -129,7 +129,8 @@ total_errors
 results(root_idx).self_error = total_errors;
 results(root_idx).self_std = std_errors;
 results(root_idx).error_value_to_use = UNDECIDED;
-
+results(root_idx).min_ks = min_ks
+disp('displayed min_ks')
 % Initialize the java deque
 activenode_idxs = java.util.ArrayDeque();
 activenode_idxs.addFirst(root_idx);
@@ -145,12 +146,14 @@ while (~activenode_idxs.isEmpty())
     % Loop through the children
     for current_child_idx = current_children_idxs,        
         % Calculate the error on the current child
-        [total_errors, std_errors] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
+        [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
             struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
              'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
         results(current_child_idx).self_error           = total_errors;                 % Record the results for the current child
         results(current_child_idx).self_std             = std_errors;
         results(current_child_idx).error_value_to_use   = UNDECIDED;
+	results(current_child_idx).min_ks 		= min_ks
+   	disp('displayed min_ks')
     end
        
     children_error_sum = Inf;                                                           % If no children, want error to be infinite for any comparisons    
@@ -269,13 +272,35 @@ while (~node_idxs.isEmpty())
 end
 
 MRA.Classifier.activenode_idxs = find(cat(1,nodeFlags.error_value_to_use)==USE_THIS);
+disp('Start of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
+
+disp('The size of NodeFlags: ')
+size(nodeFlags,2)
+for i = 1: size(nodeFlags,2)
+	if isempty(nodeFlags(i).min_ks)
+		nodeFlags(i).min_ks = 0;
+	end
+	MRA.min_ks(i) = nodeFlags(i).min_ks;
+end
+% temp2 = reshape([nodeFlags.min_ks], size(nodeFlags))
+temp = cat(1, nodeFlags.min_ks);
+whos temp
+disp('checking the nodes that were not empty: either scalar or Inf: ')
+find(temp >0)
+find(temp >0 & temp <inf)
+MRA.Classifier.activenode_idxs
+disp('End of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
+
+% Save NodeFlags_min_ks to MRA so that we can transfer it to GMRA_Classifier_test.m
+% MRA.min_ks = nodeFlags.min_ks;
 
 % Go through the active nodes in the classifier and classify the test points in there
 for k = 1:length(MRA.Classifier.activenode_idxs),
     current_node_idx = MRA.Classifier.activenode_idxs(k);
+    min_ks = nodeFlags(current_node_idx).min_ks
     [MRA.Classifier.Classifier{current_node_idx},dataIdxs_train] = ...
-        fcn_train_single_node( MRA.Data_train_GWT, Labels_train, ...
-                struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
+        fcn_train_single_node( MRA.Data_train_GWT, Labels_train, min_ks, ...
+          struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
                'LOL_alg',Opts.LOL_alg ) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;

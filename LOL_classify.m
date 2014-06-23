@@ -42,6 +42,7 @@ boundary = cell(length(task.types),1); % variable added for classify_single_node
 % disp('checking the size of the projection matrix and the matrix, sample')
 % size(Proj{1}.V)
 % size(sample')
+
 k=0;
 for i=1:length(transformers)
     if ~isempty(sample)
@@ -55,3 +56,5 @@ for i=1:length(transformers)
         [Yhat{k}, boundary] = decide(Xtest,Xtrain,group,deciders{i}{j},task.ks); % 'boundary' added for classify_single_node_train for supervised_GMRA
     end
 end
+
+% boundary

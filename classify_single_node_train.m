@@ -1,4 +1,4 @@
-function [classifier_trained,dataIdxs_train] = classify_single_node_train( Data_train_GWT, Labels_train, Opts )
+function [classifier_trained,dataIdxs_train] = classify_single_node_train( Data_train_GWT, Labels_train, min_ks, Opts )
 %
 % IN:
 %   Data_train_GWT  : GWT of training data
@@ -12,7 +12,11 @@ function [classifier_trained,dataIdxs_train] = classify_single_node_train( Data_
 % OUT:
 %   trained_classifier : classifier
 %
-
+bestAllK = 0;
+bestTrainK = 1;
+if bestAllK
+    bestTrainK = 0;
+end
 if ~isfield(Opts,'Classifier') || isempty(Opts.Classifier),     Opts.Classifier = @LDA_traintest;   end;
 if ~isfield(Opts,'COMBINED')   || isempty(Opts.COMBINED),       Opts.COMBINED   = 0;                end;
 
@@ -32,12 +36,15 @@ if isequal(Opts.Classifier, @LOL_traintest)
     task.ntrain = size(coeffs_train, 2);
     ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)));
     Opts.task = task;
+    if bestTrainK
+	ks = min_ks
+    end
     for i = 1:length(ks)
         Opts.task.ks = ks(i);
-%         [~,~,classifier_trained{i}] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
         [~,~,classifier_trained{i}] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
     end
 else
         [~,~,classifier_trained] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
 end
+
 return;

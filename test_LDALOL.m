@@ -51,6 +51,22 @@ Opts.LOL_alg = 'DENL';
 
 
 Opts.task = task;
+Opts.task.ks = ks;
+ 
+[labels_pred_LOL, n_errors_LOL, classifier_LOL, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
+
+whos     
+classifier_LOL
+for i = 1:length(ks)
+   ERR_LOL(i) = sum(labels_pred_LOL(:,i) ~= labels_test);
+    data_test_projd{i} = classifier_LOL.Proj{1}.V * data_test';
+end
+
+ACC_LOL = 1 - ERR_LOL./numel(labels_test) 
+
+return;
+
+Opts.task = task;
 for i = 1:length(ks)
     ks(i)
 	Opts.task.ks = ks(i);
@@ -60,8 +76,12 @@ for i = 1:length(ks)
 end
 
 ACC_GMRALOL = 1 - ERR_GMRALOL./numel(labels_test) 
- 
 
+
+
+
+ 
+return;
 % 
 % % Checking whether data_test = [] affects the output of boundary
 % [CLASS, ~,~,~,COEF] = classify(data_test(:,1),data_train(:,1),labels_train, 'linear');

@@ -23,13 +23,17 @@ for i=1:Nks
 %		size(group)
 %		size(sample_node')
 %		disp('end')
-		[Yhat(i,:), ~, coef, ~] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
+		disp('checking for the error!')
+		[Yhat(i,:), ~, coef{i}, ~] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
+	   	size(training(1:ks(i),:))
+		size(sample_node')
+		coef{i}
 	    else	
 		disp('sample_node empty!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             end    
  %           if numel(unique(group)) > 1
  %      %        boundary{i} = [coef(1,2).const; coef(1,2).linear]'; % Added output variable boundary
-         	boundary{i} = coef;
+         	boundary = coef;
  %	    else 
  %               boundary{i} = Inf;
  %              disp('Alert!!!!!! Boundary set as inf because there was only one unique label in the node.')

@@ -13,27 +13,30 @@ if ~isfield(Opts,'Priors'),     Opts.Priors = [];   end;
 % Nks=length(task.ks);
 % Nks=length(task.ks);
        
-% disp('checking the size of data_train,labels_train,data_test,labels_test')
-% size(data_train)
-% size(labels_train)
-% size(data_test)
-% size(labels_test)
 % Train LOL classifier
-save('data_train', 'data_train')
-save('data_test', 'data_test')
-save('labels_train', 'labels_train')
-save('labels_test', 'labels_test')
 
 % LOL_classify input: data: N by D, 1 by N
 [labels_pred, Proj, P, boundary] = LOL_classify(data_test',data_train',labels_train', Opts.task);
 % disp('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 labels_pred = labels_pred{1}';
-% boundary{1};
+
+% boundary
+% boundary{1}
+% boundary{2}
+
+
 % boundary{1}.W;
 % boundary
 % if isempty(data_test)
-
+boundary
+boundary{1}
+boundary{1}.W
+% if ~isempty(boundary)
     classifier.W = boundary{1}.W;
+% else
+%    classifier.W = [];
+% end
+
     classifier.Proj = Proj;
     classifier.ClassLabel = unique(labels_train)';    
 % end
@@ -46,16 +49,5 @@ labels_prob = [];
 % labels_prob = [];
 % n_errors = sum(labels_pred ~= labels_test');
 % disp('b')
-% % Projection of test data
-% % for i=1:Nks
-% %     proj = Proj{1}.V(1:task.ks(i),:);
-% %     data_test_projd{i}= proj*data_test;
-% % end
-% 
-% disp('c')
-% % Test LDA classifier
-% % [n_errors, labels_pred, labels_prob] = LOL_test( classifier, data_test_projd{1}, labels_test );
-% [n_errors, labels_pred, labels_prob] = LOL_test( classifier, data_test_projd{1}, labels_test );
-% disp('d')
-% size(labels_pred)
+
 end

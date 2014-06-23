@@ -21,6 +21,9 @@ function ClassifierResults = GMRA_Classifier_test( MRA, X, TrainGroup, Y, classi
 
 global COMBINED
 disp('Starting the GMRA_Classifier_test....')
+disp('checking the MRA.min_ks input for GMRA_Classifier_test.................................');
+MRA.min_ks
+
 if isempty(MRA.Classifier.activenode_idxs)
     ClassifierResults = [];
     disp('ERROR: No active node in the trained GMRA-classifier.');
@@ -39,7 +42,7 @@ else
     % Go through the active nodes in the classifier and classify the test points in there
     for k = 1:length(MRA.Classifier.activenode_idxs),
         current_node_idx = MRA.Classifier.activenode_idxs(k);
-        
+%       min_ks = MRA.min_ks(current_node_idx) 
         % Classify on the k-th active node, using its corresponding classifier
         [ClassifierResults.Test.errors(current_node_idx),ClassifierResults.Test.Labels_node_pred{current_node_idx},dataIdxs_test, ...
             ClassifierResults.Test.Labels_node_prob{current_node_idx}] = ...
@@ -55,15 +58,22 @@ else
 	temp = Y(TrainGroup == 0);
 	temp = temp(dataIdxs_test);
     	% for
-	 
+	disp('dispaying temp1 and temp2')
+	temp
+	size(temp)
 	temp2 = ClassifierResults.Test.Labels.labels_pred{k};
 %	temp2(1:10)
+	for i = 1: numel(temp2)
+		temp2{i}
+	end
 	size(temp2)
-		for i = 1: numel(temp2)
+       		 if ~isempty(temp)
+			for i = 1: numel(temp2)
 			% temp2{i}
 	%		size(temp2{i})
 	%		size(temp)
 			ClassifierResults.Test.Labels.errors(k,i) = sum(temp2{i} ~= temp');
+			end
 		end
 	else
 	% String the predicted labels in an easily accessible vector

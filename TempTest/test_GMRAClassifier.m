@@ -50,23 +50,33 @@ for k = 1: n_classifiers
 end
 
 for k = 1: n_classifiers
-    if k > 1
-       Opts.debugMRA = MRA{1}.debugMRA; % to use the same MRA for both classifiers.
-    end
-   Opts.Classifier = classifier_train{k};
-   Opts.LOL_alg = LOL_alg{k};
-   MRA{k} = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-   MRA{1}
-   MRA{1}.cp
-   MRA{1}.Classifier.Classifier
-   isempty(MRA{1}.Classifier.Classifier)
+	if k > 1
+		Opts.debugMRA = MRA{1}.debugMRA; % to use the same MRA for both classifiers.
+   	end
+   		Opts.Classifier = classifier_train{k};
+   		Opts.LOL_alg = LOL_alg{k};
+    	if exist('MRAsaved.mat') == 0
+		disp('No previous MRA is saved. Running GMRA_Classifier.')
+        	MRA{k} = GMRA_Classifier( X, TrainGroup, Labels, Opts);
+	else	
+		MRA{1}= load('MRAsave.mat');
+	end
+%   MRA{1}
+%   MRA{1}.cp
+%   MRA{1}.Classifier.Classifier
+%   isempty(MRA{1}.Classifier.Classifier)
 %    MRA{1}.Classifier.Classifier{end}{1}.W{1}
-   MRA{1}.Classifier.activenode_idxs
-   Opts = [];
-   Opts.LOL_alg = LOL_alg{k};
-	disp('checking the classifier input to GMRA_Classifier_test')
-	MRA{1}.Classifier.Classifier
-  ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
+	disp('# of the nodes from the resulted MRA: ');
+	length(MRA{1}.cp)
+	disp('# of the active nodes from the resulted MRA: ');
+	length(MRA{1}.Classifier.activenode_idxs)
+  	Opts = [];
+   	Opts.LOL_alg = LOL_alg{k};
+%	disp('checking the classifier input to GMRA_Classifier_test')
+%	MRA{1}.Classifier.Classifier
+	disp('checking the min_ks transfer.........................................................')
+	MRA{1}.min_ks
+	ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
 end
 
 
@@ -93,22 +103,37 @@ end
 % 
 
 %% Accuracy
-whos Labels
-Y = double(Labels);
-labels_test = Y(TrainGroup == 0);
-for i = 1: length(MRA{1}.Classifier.activenode_idxs)
-	thisnode = ClassifierResults{1}.Test.Labels.labels_pred{i};
-	node_idx = ClassifierResults{1}.Test.Labels.idx{i};
-	node_true = labels_test(node_idx);
-	for j = 1: length(thisnode)
-		size(node_true')
-		size(thisnode{j})
-		node_error(j) = sum(node_true' ~= thisnode{j});
+
+labels_test = Labels(TrainGroup == 0);
+count = 0;		
+for k = 1: n_classifiers
+	if isequal(classifier_test{k}, @LOL_test)
+		for i = 1: length(MRA{1}.Classifier.activenode_idxs)
+			thisnode = ClassifierResults{1}.Test.Labels.labels_pred{i};
+			node_idx = ClassifierResults{1}.Test.Labels.idx{i};
+			node_true = labels_test(node_idx);
+			for j = 1: length(thisnode)
+				disp('j: ')
+				j		
+				size(node_true')
+				size(thisnode{j})
+				if isempty(node_true)
+					node_error(j) = 0;
+				else
+					node_error(j) = sum(node_true' ~= thisnode{j});
+				end
+			end
+			min_node_error(i) = min(node_error);
+			count = count + numel(node_true);
+		end
+ 	   	ACC_GMRAClassifier(k) = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
+	else
+	   	ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
 	end
-	min_node_error(i) = min(node_error);
+	disp('the count: ')
+	count
 end
-	
-    ACC_GMRAClassifier = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
+
 
 % save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
 return;
