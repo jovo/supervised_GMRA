@@ -216,7 +216,7 @@ ks
 % Validation stage: CV within training data for estimating k
 N = size(data_train, 1)
 disp('CV ratio: ')
-ratio = 95/100
+ratio = 1/10
 disp('ntest: ')
 ntest = floor(ratio*N);
 disp('ntrain: ')
@@ -246,7 +246,8 @@ ACC_LOL = 1 - ERR_LOL./numel(labels_test_cv);
 [max_ACC_cv, minidx_cv] = max(ACC_LOL);
 
 % TRAIN stage
-Opts.task.ks = ks(minidx_cv);
+Opts.task.ks = ks(minidx_cv);whos
+
 disp('mink: ')
 ks(minidx_cv)
 tic;

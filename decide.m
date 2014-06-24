@@ -23,11 +23,11 @@ for i=1:Nks
 %		size(group)
 %		size(sample_node')
 %		disp('end')
-		disp('checking for the error!')
+% 		disp('checking for the error!')
 		[Yhat(i,:), ~, coef{i}, ~] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
-	   	size(training(1:ks(i),:))
-		size(sample_node')
-		coef{i}
+% 	   	size(training(1:ks(i),:))
+% 		size(sample_node')
+% 		coef{i}
 	    else	
 		disp('sample_node empty!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             end    

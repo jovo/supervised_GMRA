@@ -27,7 +27,7 @@ function [MRA] = GMRA_Classifier( X, TrainGroup, Labels, Opts )
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    Opts.GMRAopts.ManifoldDimension = 0;
+    Opts.GMRAopts.ManifoldDimension = 40;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -62,7 +62,7 @@ fcn_traincv_single_node = @classify_single_node_crossvalidation;
 % itself. DEPTH = 0 will stop immediately when children don't help.
 % DEPTH = 2 will look down 2 levels to see if it can do better. I usually
 % set to 6 or 10 to search most of the tree.
-ALLOWED_DEPTH = 2;
+ALLOWED_DEPTH = 5;
 
 % Flag for error status on each node
 global USE_THIS USE_SELF USE_CHILDREN UNDECIDED COMBINED

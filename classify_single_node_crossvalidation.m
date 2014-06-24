@@ -40,7 +40,7 @@ if (node_cats>1) && (node_pts>node_cats) && size(Data_GWT,1)>0
 	% As here we use one-time check instead of crossval within training data for computation time,
 	% the ratio of the training vs. the test within training data here could affect the search for
 	% the appropriate choice of nodes and the k.
-	ratio = 7/10;
+	ratio = 1/10;
 	ntest = floor(ratio*N);
 	ntrain = N-ntest;
 cv = 1;
@@ -61,7 +61,7 @@ CV_ERR_LOL = zeros(1, length(ks));
  	
             for i = 1:length(ks)
 %            Opts.task.ks = ks(i);
-             ERR_LOL(i) = sum(labels_pred_LOL(:,i) ~= labels_test');
+                ERR_LOL(i) = sum(labels_pred_LOL(:,i) ~= labels_test');
 %		n_errors_LOL{i}
 %		ERR_LOL(i)
 %            classf = @(xtrain, ytrain,xtest)(Opts.Classifier(xtrain',ytrain',xtest',[],Opts));

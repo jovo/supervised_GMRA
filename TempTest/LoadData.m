@@ -25,6 +25,7 @@ switch pDataSetName
         Ytrain(1:10)
         
         X = [Xtrain Xtest];
+	X = X.*255;
         TrainGroup = [ones(1, size(Xtrain, 2)) zeros(1, size(Xtest, 2))];
         size(Ytrain)
 	size(Ytest)
