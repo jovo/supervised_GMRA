@@ -62,7 +62,7 @@ fcn_traincv_single_node = @classify_single_node_crossvalidation;
 % itself. DEPTH = 0 will stop immediately when children don't help.
 % DEPTH = 2 will look down 2 levels to see if it can do better. I usually
 % set to 6 or 10 to search most of the tree.
-ALLOWED_DEPTH = 5;
+ALLOWED_DEPTH = 2;
 
 % Flag for error status on each node
 global USE_THIS USE_SELF USE_CHILDREN UNDECIDED COMBINED
@@ -89,6 +89,7 @@ MRA         = rmfield(MRA, 'X');
 MRA.Labels_train = Labels_train;
 
 fprintf('done.');
+
 % Compute all wavelet coefficients
 fprintf('\nTransform data via GWT...');
 tic;
@@ -152,7 +153,7 @@ while (~activenode_idxs.isEmpty())
         % Calculate the error on the current child
         [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
             struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-             'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
+             'LOL_alg', Opts.LOL_alg, 'X',  ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
         results(current_child_idx).self_error           = total_errors;                 % Record the results for the current child
         results(current_child_idx).self_std             = std_errors;
         results(current_child_idx).error_value_to_use   = UNDECIDED;

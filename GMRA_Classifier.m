@@ -27,7 +27,7 @@ function [MRA] = GMRA_Classifier( X, TrainGroup, Labels, Opts )
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    Opts.GMRAopts.ManifoldDimension = 0;
+    Opts.GMRAopts.ManifoldDimension = 40;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -39,7 +39,7 @@ if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts.knn = 8;
     Opts.GMRAopts.knnAutotune = 3;
     Opts.GMRAopts.smallestMetisNet = 5;
-    Opts.GMRAopts.verbose = 1;
+    Opts.GMRAopts.verbose = 0;
     Opts.GMRAopts.shrinkage = 'hard';
     Opts.GMRAopts.avoidLeafnodePhi = false;
     Opts.GMRAopts.mergePsiCapIntoPhi  = false;
@@ -62,7 +62,7 @@ fcn_traincv_single_node = @classify_single_node_crossvalidation;
 % itself. DEPTH = 0 will stop immediately when children don't help.
 % DEPTH = 2 will look down 2 levels to see if it can do better. I usually
 % set to 6 or 10 to search most of the tree.
-ALLOWED_DEPTH = 2;
+ALLOWED_DEPTH = 10;
 
 % Flag for error status on each node
 global USE_THIS USE_SELF USE_CHILDREN UNDECIDED COMBINED
@@ -89,6 +89,7 @@ MRA         = rmfield(MRA, 'X');
 MRA.Labels_train = Labels_train;
 
 fprintf('done.');
+
 % Compute all wavelet coefficients
 fprintf('\nTransform data via GWT...');
 tic;
@@ -126,15 +127,15 @@ end;
 % This routine calculates errors for the children of the current node so we need to first calculate the root node error
 [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
                                     struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-                                    'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
-disp('Lets look at the root node error')
-total_errors
+                                    'LOL_alg', Opts.LOL_alg, 'X_train', X_train ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
+% disp('Lets look at the root node error')
+% total_errors
 % Record the results for the root node
 results(root_idx).self_error = total_errors;
 results(root_idx).self_std = std_errors;
 results(root_idx).error_value_to_use = UNDECIDED;
-results(root_idx).min_ks = min_ks
-disp('displayed min_ks')
+results(root_idx).min_ks = min_ks;
+% disp('displayed min_ks')
 % Initialize the java deque
 activenode_idxs = java.util.ArrayDeque();
 activenode_idxs.addFirst(root_idx);
@@ -152,12 +153,12 @@ while (~activenode_idxs.isEmpty())
         % Calculate the error on the current child
         [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
             struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-             'LOL_alg', Opts.LOL_alg ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
+             'LOL_alg', Opts.LOL_alg, 'X_train', X_train ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
         results(current_child_idx).self_error           = total_errors;                 % Record the results for the current child
         results(current_child_idx).self_std             = std_errors;
         results(current_child_idx).error_value_to_use   = UNDECIDED;
-	results(current_child_idx).min_ks 		= min_ks
-   	disp('displayed min_ks')
+	results(current_child_idx).min_ks 		= min_ks;
+ %  	disp('displayed min_ks')
     end
        
     children_error_sum = Inf;                                                           % If no children, want error to be infinite for any comparisons    
@@ -171,14 +172,14 @@ while (~activenode_idxs.isEmpty())
     
     % Compare children results to self error
     self_error = results(current_node_idx).self_error;
-	disp('compare the self_error and the children_error_sum')
-	self_error
-	children_error_sum
+	% disp('compare the self_error and the children_error_sum')
+	% self_error
+	% children_error_sum
     if (self_error < children_error_sum)                                                % NOTE: slop based on std?
-        disp('USE_SELF')
+        % disp('USE_SELF')
 	results(current_node_idx).error_value_to_use = USE_SELF;                        % Set status = USE_SELF        
     else        
-	disp('USE_CHILDREN')
+	% disp('USE_CHILDREN')
         results(current_node_idx).error_value_to_use = USE_CHILDREN;                    % Set status = USE_CHILDREN                
         error_difference = self_error - children_error_sum;                             % Propagate difference up parent chain        
         for parent_node_idx = current_parents_idxs,                                     % Loop through list of parent nodes            
@@ -231,7 +232,7 @@ while (~activenode_idxs.isEmpty())
     
     % Only addFirst children on to the stack if this node qualifies
     if (use_self_depth_low_enough && all_children_errors_finite)
-        fprintf('\n debugging: The node qualifies.');
+        % fprintf('\n debugging: The node qualifies.');
         % Find childrent of current node
         for idx = current_children_idxs
             activenode_idxs.addFirst(idx);
@@ -276,10 +277,10 @@ while (~node_idxs.isEmpty())
 end
 
 MRA.Classifier.activenode_idxs = find(cat(1,nodeFlags.error_value_to_use)==USE_THIS);
-disp('Start of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
+% disp('Start of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
 
-disp('The size of NodeFlags: ')
-size(nodeFlags,2)
+% disp('The size of NodeFlags: ')
+% size(nodeFlags,2)
 for i = 1: size(nodeFlags,2)
 	if isempty(nodeFlags(i).min_ks)
 		nodeFlags(i).min_ks = 0;
@@ -288,12 +289,12 @@ for i = 1: size(nodeFlags,2)
 end
 % temp2 = reshape([nodeFlags.min_ks], size(nodeFlags))
 temp = cat(1, nodeFlags.min_ks);
-whos temp
-disp('checking the nodes that were not empty: either scalar or Inf: ')
-find(temp >0)
-find(temp >0 & temp <inf)
-MRA.Classifier.activenode_idxs
-disp('End of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
+% whos temp
+% disp('checking the nodes that were not empty: either scalar or Inf: ')
+% find(temp >0)
+% find(temp >0 & temp <inf)
+% MRA.Classifier.activenode_idxs
+% disp('End of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
 
 % Save NodeFlags_min_ks to MRA so that we can transfer it to GMRA_Classifier_test.m
 % MRA.min_ks = nodeFlags.min_ks;
@@ -301,11 +302,11 @@ disp('End of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  n
 % Go through the active nodes in the classifier and classify the test points in there
 for k = 1:length(MRA.Classifier.activenode_idxs),
     current_node_idx = MRA.Classifier.activenode_idxs(k);
-    min_ks = nodeFlags(current_node_idx).min_ks
+    min_ks = nodeFlags(current_node_idx).min_ks;
     [MRA.Classifier.Classifier{current_node_idx},dataIdxs_train] = ...
         fcn_train_single_node( MRA.Data_train_GWT, Labels_train, min_ks, ...
           struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-               'LOL_alg',Opts.LOL_alg ) );
+               'LOL_alg',Opts.LOL_alg, 'X_train', X_train ) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
 MRA.results = results;

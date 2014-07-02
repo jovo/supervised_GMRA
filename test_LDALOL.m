@@ -49,9 +49,9 @@ whos
 Opts.LOL_alg = 'DENL';
 [ task, ks] = set_task_LOL( Opts, size(data_train,2) )
 
-
 Opts.task = task;
 Opts.task.ks = ks;
+
  
 [labels_pred_LOL, n_errors_LOL, classifier_LOL, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
 

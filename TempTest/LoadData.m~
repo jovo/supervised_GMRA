@@ -315,23 +315,32 @@ switch pDataSetName
         Labels = vLabels';              %   Labels      : row N vector of labels for the points
         clear vLabels
         
-        Ntrain = 300;
+              
         
+        Ntrain = size(X, 2);
+        Labels = vLabels';              %   Labels      : row N vector of labels for the points
+        clear vLabels
+        
+        dummy = load('img_test.mat');
+        Xtest = dummy.images_test;
+        X = [X Xtest];
+        clear Xtest
+        
+        dummy = load('labels_test.mat');
+        Ytest = dummy.labels_test;
+        Labels = [Labels Ytest];
+        clear dummy Ytest 
+        
+        [D, N] = size(X);
         %   TrainGroup  : row N vector, with 1's corresponding to columns of X to be used as training set.
-         TrainGroup = zeros(1,N);
-%         training_idx = 1:Ntrain;
-%         TrainGroup(training_idx) = 1;
+        TrainGroup = zeros(1,N);
+        training_idx = 1:Ntrain;
+        TrainGroup(training_idx) = 1;
         
         swap = randperm(N);
         X = X(:, swap);
-        Labels = Labels(:, swap);   
-        
-        % To ensure the equal number of the labels within the training data
-        training_idx = [];
-        for i = 1: numel(unique(Labels))
-            training_idx = [training_idx find(Labels == (i-1), Ntrain/numel(unique(Labels)))];
-        end     
-        TrainGroup(training_idx) = 1;
+        Labels = Labels(:, swap);        
+     
  
     case 'MNIST_EasyAllDigits_T0.3K_t10K'
         

@@ -26,9 +26,19 @@ else
     coeffs_train = cat(2,   cat(1, Data_train_GWT.CelScalCoeffs{Data_train_GWT.Cel_cpidx == Opts.current_node_idx}), ...
         cat(1, Data_train_GWT.CelWavCoeffs{Data_train_GWT.Cel_cpidx == Opts.current_node_idx}));
 end
-dataIdxs_train      = Data_train_GWT.PointsInNet{Opts.current_node_idx};
-dataLabels_train    = Labels_train(dataIdxs_train);
 
+dataIdxs_train      = Data_train_GWT.PointsInNet{Opts.current_node_idx};
+
+% Addition to use X instead of Wavelet Coeffs
+UseX = 0;
+if UseX
+    coeffs_train = Opts.X_train(:, dataIdxs_train)';
+end
+
+dataLabels_train    = Labels_train(dataIdxs_train);
+% disp('checking the size of coeffs and dataLabels with X')
+% size(coeffs_train)
+% size(dataLabels_train)
 if isequal(Opts.Classifier, @LOL_traintest)
     task = {};
     task.LOL_alg = Opts.LOL_alg;
@@ -37,14 +47,14 @@ if isequal(Opts.Classifier, @LOL_traintest)
     ks=unique(floor(logspace(0,log10(task.ntrain),task.ntrain)));
     Opts.task = task;
     if bestTrainK
-	ks = min_ks
+        ks = min_ks;
     end
     for i = 1:length(ks)
         Opts.task.ks = ks(i);
         [~,~,classifier_trained{i}] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
     end
 else
-        [~,~,classifier_trained] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
+    [~,~,classifier_trained] = Opts.Classifier( coeffs_train', dataLabels_train,[],[], Opts );
 end
 
 return;

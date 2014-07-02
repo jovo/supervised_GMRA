@@ -7,11 +7,16 @@ clc
 
 dir = fileparts(mfilename('fullpath'));
 cd(dir); cd ..
+% cd ..
+% pwd
+% rmpath(genpath(pwd));
+cd('/home/collabor/yb8/supervised_GRMA')
 addpath(genpath(pwd));
+cd(dir);
 
 %% Pick a data set
 
-pDataSetNames  = {'MNIST_HardBinary_T60K_t10K', 'MNIST_HardBinary_T5.0K_t5.0K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
+pDataSetNames  = {'MNIST_HardBinary_T60K_t10K', 'MNIST_HardBinary_T5.0K_t5.0K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyTriple_T0.3K_t10K',  'MNIST_EasyAllDigits_T0.3K_t10K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris' };
     
 fprintf('\n Data Sets:\n');
 for k = 1:length(pDataSetNames),
@@ -27,7 +32,7 @@ pDataSetIdx = input('Pick a data set to test: \n');
 
 %% Pick a classifier 
 
-pClassifierNames  = {'LDA', 'matlab_LDA', 'QDA', 'LOL: LDA', 'LOL: LOL'};
+pClassifierNames  = {'LDA', 'matlab_LDA', 'QDA', 'LOL: LDA', 'LOL: LOL', 'LOL: embeddingLOL'};
 
 fprintf('\n Classifiers:\n');
 for k = 1:length(pClassifierNames),
@@ -41,8 +46,8 @@ n_classifiers = numel(pClassifierIdx);
 %% Add algorithm directory to search path
 
 % Add GMRA directory
-addpath(genpath('/home/collabor/yb8/GMRA/'))
-addpath(genpath('/home/collabor/yb8/DiffusionGeometry/'))
+% addpath(genpath('/home/collabor/yb8/GMRA/'))
+% addpath(genpath('/home/collabor/yb8/DiffusionGeometry/'))
 
 % Add Classifier directory
 for k = 1: n_classifiers
@@ -74,8 +79,8 @@ for k = 1: n_classifiers
    	Opts.LOL_alg = LOL_alg{k};
 %	disp('checking the classifier input to GMRA_Classifier_test')
 %	MRA{1}.Classifier.Classifier
-	disp('checking the min_ks transfer.........................................................')
-	MRA{1}.min_ks
+% 	disp('checking the min_ks transfer.........................................................')
+%	MRA{1}.min_ks
 	ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
 end
 
@@ -113,10 +118,10 @@ for k = 1: n_classifiers
 			node_idx = ClassifierResults{1}.Test.Labels.idx{i};
 			node_true = labels_test(node_idx);
 			for j = 1: length(thisnode)
-				disp('j: ')
-				j		
-				size(node_true')
-				size(thisnode{j})
+%				disp('j: ')
+%				j		
+%				size(node_true')
+%				size(thisnode{j})
 				if isempty(node_true)
 					node_error(j) = 0;
 				else
@@ -130,8 +135,8 @@ for k = 1: n_classifiers
 	else
 	   	ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
 	end
-	disp('the count: ')
-	count
+%	disp('the count: ')
+%	count
 end
 
 

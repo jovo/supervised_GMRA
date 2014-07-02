@@ -109,8 +109,8 @@ opts.AmbientDimension  = size(X,1);
 if ~isfield(opts, 'GWTversion') || isempty(opts.GWTversion),  
     opts.GWTversion = 1; 
 end;
-opts.orthogonalizing  = (opts.GWTversion == 1)
-opts.pruning          = (opts.GWTversion == 2)
+opts.orthogonalizing  = (opts.GWTversion == 1);
+opts.pruning          = (opts.GWTversion == 2);
 
 % parameters for building neighborhood graph
 if ~isfield(opts, 'knn'),                opts.knn = 50;                end;
@@ -128,7 +128,7 @@ end;
 if ~isfield(opts, 'threshold0'),        opts.threshold0 = 0.5;         end;                    
 if ~isfield(opts, 'errorType'),         opts.errorType = 'relative';   end;                    
 if ~isfield(opts, 'precision'),         opts.precision = 0.05;         end;
-opts.GWTversion
+
 switch opts.GWTversion
     case 0
         if ~isfield(opts, 'addTangentialCorrections'),  opts.addTangentialCorrections = false; end;
@@ -180,7 +180,7 @@ gMRA.opts = opts;
 
 %% Compute pairwise weights
 if isempty(opts.graph),
-    if gMRA.opts.verbose,     fprintf('\n Constructing graph...'); end; %tic                     
+    if gMRA.opts.verbose,     fprintf('\n Constructing graph...'); end; tic                     
     gMRA.Timing.graph = cputime;
     gMRA.Graph = GraphDiffusion( X, 0, ...
         struct('KNN', opts.knn,'kNNAutotune',opts.knnAutotune,'Display',0,...
@@ -191,7 +191,7 @@ end;
 
 %% Build the metis tree and remove separators
 if isempty(opts.tree) || isempty(opts.treeidxs),
-    if gMRA.opts.verbose,   fprintf('\n Constructing multiscale partitions...'); end; %tic
+    if gMRA.opts.verbose,   fprintf('\n Constructing multiscale partitions...'); end; tic
     gMRA.Timing.nesdis    = cputime;
     [~,gMRA.cp,cmember]   = nesdis(gMRA.Graph.W,'sym',opts.smallestMetisNet);
     gMRA.Timing.nesdis    = cputime-gMRA.Timing.nesdis;
@@ -247,8 +247,10 @@ end
 % back up gMRA.cp
 gMRA.cp_orig = gMRA.cp;
 
+return;
+
 %% Construct geometric wavelets
-if gMRA.opts.verbose,     fprintf('\n Constructing geometric wavelets...'); end; %tic
+if gMRA.opts.verbose,     fprintf('\n Constructing geometric wavelets...'); end; tic
 if gMRA.opts.orthogonalizing
     gMRA = construct_orthogonalGeometricWavelets( gMRA );           % orthogonal geometric wavelets
 elseif gMRA.opts.pruning

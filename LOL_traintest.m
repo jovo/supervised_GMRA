@@ -28,9 +28,9 @@ labels_pred = labels_pred{1}';
 % boundary{1}.W;
 % boundary
 % if isempty(data_test)
-boundary
-boundary{1}
-boundary{1}.W
+% boundary
+% boundary{1}
+% boundary{1}.W
 % if ~isempty(boundary)
     classifier.W = boundary{1}.W;
 % else

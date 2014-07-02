@@ -36,5 +36,10 @@ switch pClassifierName
         classifier_train = @LOL_traintest;
         classifier_test = @LOL_test;
         LOL_alg = {'DENL'};
+
+    case 'LOL: embeddingLOL'
+	classifier_train = @LDA_traintest;
+        classifier_test = @LDA_test;
+	LOL_alg = {'DENL'};
 end
 
