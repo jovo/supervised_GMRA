@@ -3,7 +3,8 @@ function gW = construct_orthogonalGeometricWavelets( gW )
 % build the tree, and compute svd only at the roots
 root = find(gW.cp==0);
 gW  = construct_vNets_NoSVD(gW,root);       
-gW  = local_SVD_analysis(gW,root);
+%gW  = local_SVD_analysis(gW,root);
+gW  = local_LOL_analysis(gW,root);
 
 % initialization
 gW.WavBases(root) = gW.ScalFuns(root);
@@ -34,7 +35,8 @@ while j<J && ~isempty(parentNodes);
             children = find(gW.cp==node);
             
             for c = 1:length(children)
-                gW = local_SVD_analysis(gW,children(c));
+                %gW = local_SVD_analysis(gW,children(c));
+                gW = local_LOL_analysis(gW,children(c));
             end
             
             gW = construct_localGeometricWavelets(gW,node,children);

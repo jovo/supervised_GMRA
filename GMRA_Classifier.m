@@ -27,7 +27,7 @@ function [MRA] = GMRA_Classifier( X, TrainGroup, Labels, Opts )
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    Opts.GMRAopts.ManifoldDimension = 40;
+    Opts.GMRAopts.ManifoldDimension = 200;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -79,7 +79,7 @@ Labels_train = Labels(TrainGroup == 1);
 fprintf('\n Constructing GMRA...');
 tic;
 if ~isfield(Opts,'debugMRA') % If there is not MRA already, do GMRA and output as MRA
-    MRA         = GMRA(X_train, Opts.GMRAopts);
+    MRA         = GMRA(X_train, Opts.GMRAopts, Labels_train);
     MRA.debugMRA = MRA;
 else                         % If there is MRA given as input, don't do GMRA.
     MRA         = Opts.debugMRA;

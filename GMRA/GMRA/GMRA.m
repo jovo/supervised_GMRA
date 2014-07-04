@@ -1,4 +1,4 @@
-function gMRA = GMRA(X,opts)
+function gMRA = GMRA(X,opts,Y)
 
 %% Geometric MultiResolution Analysis (GMRA) for Data Sets
 %
@@ -104,6 +104,11 @@ end;
 if nargin<2,           
     opts = struct();
 end;
+
+if nargin<3,
+    Y = [];
+end
+
 opts.AmbientDimension  = size(X,1);
 
 if ~isfield(opts, 'GWTversion') || isempty(opts.GWTversion),  
@@ -177,6 +182,7 @@ if ~isfield(opts, 'treeidxs'),      opts.treeidxs = [];                end;
 %%
 gMRA.X = X;
 gMRA.opts = opts;
+gMRA.Y = Y;
 
 %% Compute pairwise weights
 if isempty(opts.graph),

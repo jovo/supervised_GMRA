@@ -40,15 +40,14 @@ pDataSetIdx = input('Pick a data set to test: \n');
 
 [X, TrainGroup, Labels] = LoadData(pDataSetNames{pDataSetIdx});
 
-data_train   = X(:, TrainGroup == 1)';
-data_test    = X(:, TrainGroup == 0)';
-labels_train = Labels(:, TrainGroup == 1)';
-labels_test  = Labels(:, TrainGroup == 0)';
+data_train   = X(:, TrainGroup == 1);
+data_test    = X(:, TrainGroup == 0);
+labels_train = Labels(:, TrainGroup == 1);
+labels_test  = Labels(:, TrainGroup == 0);
 
 whos
 
 opts = struct();
 opts.ManifoldDimension = 40;
-MRA = GMRA(data_train', opts);
-supMRA = supGMRA(data_train', opts);
+supMRA = GMRA(data_train, opts, labels_train)
 
