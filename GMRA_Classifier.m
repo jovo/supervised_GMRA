@@ -23,6 +23,7 @@ function [MRA] = GMRA_Classifier( X, TrainGroup, Labels, Opts )
 %
 % (c) Copyright Mauro Maggioni, 2013
 %
+Timing.GMRAClassifier = cputime;
 
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
@@ -53,6 +54,17 @@ end;
 if ~isfield(Opts,'LOL_alg'), % Added for LOL classifier
     Opts.LOL_alg = {};
 end;
+if ~isfield(Opts, 'localEmbedding')
+    Opts.GMRAopts.localEmbedding = 0 % Default: SVD
+else
+    Opts.GMRAopts.localEmbedding = Opts.localEmbedding; % Added for choosing local embedding method: SVD (0) vs LOL (1)
+end
+if ~isfield(Opts, 'LOL_Projection')
+    Opts.LOL_Projection = 0;
+end
+if ~isfield(Opts, 'UseX')
+    Opts.UseX = 0;
+end
 
 fcn_train_single_node   = @classify_single_node_train;
 fcn_traincv_single_node = @classify_single_node_crossvalidation;
@@ -74,17 +86,17 @@ COMBINED        = false;    % Combined uses both scaling functions and wavelets 
 
 X_train      = X(:,TrainGroup == 1);
 Labels_train = Labels(TrainGroup == 1);
-
+X_test       = X(:,TrainGroup == 0); % Added to project LOL here.
 %% Generate GMRA
 fprintf('\n Constructing GMRA...');
-tic;
+% tic;
 if ~isfield(Opts,'debugMRA') % If there is not MRA already, do GMRA and output as MRA
     MRA         = GMRA(X_train, Opts.GMRAopts, Labels_train);
-    MRA.debugMRA = MRA;
+%    MRA.debugMRA = MRA;
 else                         % If there is MRA given as input, don't do GMRA.
     MRA         = Opts.debugMRA;
 end
-toc;
+% toc;
 MRA         = rmfield(MRA, 'X');
 MRA.Labels_train = Labels_train;
 
@@ -92,13 +104,27 @@ fprintf('done.');
 
 % Compute all wavelet coefficients
 fprintf('\nTransform data via GWT...');
-tic;
+% tic;
 MRA.Data_train_GWT = FGWT(MRA, X_train);
-toc;
+% toc;
 fprintf('done.');
+
+%% LOL TIME (if LOL is used for embedding, without GWT, with fixedK, without CV)
+if Opts.LOL_Projection
+    disp('LOL Projection on the whole matrix');
+    types{1} = 'DENL';
+    Kmax = Opts.GMRAopts.ManifoldDimension;
+    MRA.Timing.LOL = cputime;
+    [Proj, ~] = LOL(X_train, Labels_train,types,Kmax);
+    MRA.Timing.LOL = cputime - MRA.Timing.LOL;
+    X_train = Proj{1}.V* X_train;
+    MRA.X_test  = Proj{1}.V* X_test;    
+end
+
 
 %% Build model with train data split by cross-validation
 fprintf(1, '\n GMRA_Classifier...');
+MRA.Timing.CV = cputime;
 
 results = struct();
 for ii = 1:length(MRA.cp),
@@ -127,7 +153,7 @@ end;
 % This routine calculates errors for the children of the current node so we need to first calculate the root node error
 [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
                                     struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-                                    'LOL_alg', Opts.LOL_alg, 'X_train', X_train ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
+                                    'LOL_alg', Opts.LOL_alg, 'X_train', X_train, 'UseX',Opts.UseX ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
 % disp('Lets look at the root node error')
 % total_errors
 % Record the results for the root node
@@ -153,7 +179,7 @@ while (~activenode_idxs.isEmpty())
         % Calculate the error on the current child
         [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
             struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-             'LOL_alg', Opts.LOL_alg, 'X_train', X_train ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
+             'LOL_alg', Opts.LOL_alg, 'X_train', X_train, 'UseX',Opts.UseX) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
         results(current_child_idx).self_error           = total_errors;                 % Record the results for the current child
         results(current_child_idx).self_std             = std_errors;
         results(current_child_idx).error_value_to_use   = UNDECIDED;
@@ -277,10 +303,7 @@ while (~node_idxs.isEmpty())
 end
 
 MRA.Classifier.activenode_idxs = find(cat(1,nodeFlags.error_value_to_use)==USE_THIS);
-% disp('Start of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
 
-% disp('The size of NodeFlags: ')
-% size(nodeFlags,2)
 for i = 1: size(nodeFlags,2)
 	if isempty(nodeFlags(i).min_ks)
 		nodeFlags(i).min_ks = 0;
@@ -293,12 +316,11 @@ temp = cat(1, nodeFlags.min_ks);
 % disp('checking the nodes that were not empty: either scalar or Inf: ')
 % find(temp >0)
 % find(temp >0 & temp <inf)
-% MRA.Classifier.activenode_idxs
-% disp('End of displaying nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags  nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags nodeFlags');
-
+MRA.Timing.CV = cputime - MRA.Timing.CV;
 % Save NodeFlags_min_ks to MRA so that we can transfer it to GMRA_Classifier_test.m
 % MRA.min_ks = nodeFlags.min_ks;
 
+MRA.Timing.Train = cputime;
 % Go through the active nodes in the classifier and classify the test points in there
 for k = 1:length(MRA.Classifier.activenode_idxs),
     current_node_idx = MRA.Classifier.activenode_idxs(k);
@@ -306,10 +328,12 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
     [MRA.Classifier.Classifier{current_node_idx},dataIdxs_train] = ...
         fcn_train_single_node( MRA.Data_train_GWT, Labels_train, min_ks, ...
           struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-               'LOL_alg',Opts.LOL_alg, 'X_train', X_train ) );
+               'LOL_alg',Opts.LOL_alg, 'X_train', X_train, 'UseX',Opts.UseX) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
-MRA.results = results;
+%MRA.results = results;
+MRA.Timing.Train = cputime - MRA.Timing.Train;
+MRA.Timing.GMRAClassifier = cputime-Timing.GMRAClassifier;
 
 fprintf('\n done.\n');
 

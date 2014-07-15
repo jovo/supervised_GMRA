@@ -19,8 +19,10 @@ function ClassifierResults = GMRA_Classifier_test( MRA, X, TrainGroup, Y, classi
 %
 % (c) Copyright Mauro Maggioni, 2013
 
+Timing.GMRAClassifierTest = cputime;
+
 global COMBINED
-disp('Starting the GMRA_Classifier_test....')
+% disp('Starting the GMRA_Classifier_test....')
 % disp('checking the MRA.min_ks input for GMRA_Classifier_test.................................');
 % MRA.min_ks
 
@@ -37,6 +39,9 @@ else
     Data_test           = X(:,TrainGroup==0);
     MRA.Data_test_GWT   = FGWT( MRA , Data_test );                      % The classifier works on the GWT side
     MRA.Data_test       = Data_test;                                    % Input of Data_test to test classifier on the data side
+    if isfield(MRA, 'X_test')
+        MRA.Data_test = MRA.X_test;
+    end
     MRA.Labels_test     = Y(TrainGroup==0);
     %   disp('length of the activnodes')
     %  length(MRA.Classifier.activenode_idxs)
@@ -48,7 +53,7 @@ else
         [ClassifierResults.Test.errors(current_node_idx),ClassifierResults.Test.Labels_node_pred{current_node_idx},dataIdxs_test, ...
             ClassifierResults.Test.Labels_node_prob{current_node_idx}] = ...
             fcn_test_single_node( MRA, MRA.Data_test_GWT, MRA.Labels_test, struct('classifier', classifier, 'current_node_idx',current_node_idx, ...
-            'LOL_alg',Opts.LOL_alg, 'COMBINED',COMBINED) );
+            'LOL_alg',Opts.LOL_alg, 'COMBINED',COMBINED, 'UseX', Opts.UseX) );
         
         if isequal(classifier, @LOL_test)
             
@@ -86,4 +91,5 @@ else
     % ClassifierResults.Test.Labels.labels_pred
 end
 
+ClassifierResults.Timing.GMRAClassifierTest = cputime-Timing.GMRAClassifierTest;
 return;

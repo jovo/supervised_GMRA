@@ -4,11 +4,9 @@ function gW = construct_orthogonalGeometricWavelets( gW )
 root = find(gW.cp==0);
 gW  = construct_vNets_NoSVD(gW,root);    
 if ~gW.opts.localEmbedding
-    gW  = local_SVD_analysis(gW,root);
+gW  = local_SVD_analysis(gW,root);
 else
-    using('local_LOL')
-    gW  = local_LOL_analysis(gW,root);
-end
+%gW  = local_LOL_analysis(gW,root);
 
 % initialization
 gW.WavBases(root) = gW.ScalFuns(root);
@@ -39,13 +37,8 @@ while j<J && ~isempty(parentNodes);
             children = find(gW.cp==node);
             
             for c = 1:length(children)
-                
-                if ~gW.opts.localEmbedding
-                    gW  = local_SVD_analysis(gW,children(c));
-                else
-                    gW  = local_LOL_analysis(gW,children(c));
-                end
-                
+                gW = local_SVD_analysis(gW,children(c));
+                %gW = local_LOL_analysis(gW,children(c));
             end
             
             gW = construct_localGeometricWavelets(gW,node,children);

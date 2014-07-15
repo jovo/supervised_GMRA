@@ -15,7 +15,7 @@ addpath(genpath(pwd));
 cd(dir);
 
 
-%% Pick a classifier
+%% Pick a classifier 
 
 pClassifierNames  = {'LDA', 'matlab_LDA', 'QDA', 'LOL: LDA', 'LOL: LOL', 'LOL: embeddingLOL'};
 
@@ -40,16 +40,11 @@ for k = 1: n_classifiers
 end
 
 
-%% GMRA Classification Conditions
-Opts.localEmbedding = input('local_Embedding: SVD(0) / LOL(1)');
-Opts.LOL_Projection = input('LOL Projection on the whole data(1) / else(0)');
-Opts.UseX  = input('UseGW(0) / UseX(1)');
-
 
 %% Pick a data set
 
 pDataSetNames  = {'MNIST_HardBinary_T60K_t10K', 'MNIST_HardBinary_T5.0K_t5.0K',  'MNIST_HardBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T2.5K_t2.5K', 'MNIST_EasyBinary_T0.8K_t0.8K', 'MNIST_EasyBinary_T0.7K_t0.7K', 'MNIST_EasyBinary_T0.6K_t0.6K', 'MNIST_EasyBinary_T0.5K_t0.5K', 'MNIST_EasyBinary_T0.4K_t0.4K', 'MNIST_EasyBinary_T0.3K_t0.3K', 'MNIST_EasyBinary_T0.2K_t0.2K', 'MNIST_EasyTriple_T0.6K_t0.6K', 'MNIST_EasyTriple_T0.3K_t0.3K', 'MNIST_EasyTriple_T0.3K_t10K',  'MNIST_EasyAllDigits_T0.3K_t10K', 'MNIST_EasyBinary_T10_t10', 'Gaussian_2', 'FisherIris', 'CIFAR_T10kt10k', 'CIFAR_T50kt10k' };
-
+    
 fprintf('\n Data Sets:\n');
 for k = 1:length(pDataSetNames),
     fprintf('\n [%d] %s',k,pDataSetNames{k});
@@ -92,7 +87,7 @@ for nT = 1: nTrials
         length(MRA{1}.cp)
         disp('# of the active nodes from the resulted MRA: ');
         length(MRA{1}.Classifier.activenode_idxs)
-        %Opts = []; %?????????????????????????????????????
+        Opts = [];
         Opts.LOL_alg = LOL_alg{k};
         %	disp('checking the classifier input to GMRA_Classifier_test')
         %	MRA{1}.Classifier.Classifier
@@ -103,72 +98,61 @@ for nT = 1: nTrials
         %     toc;
     end
     
-    Timing{nT} = MRA{1}.Timing;
-    Timing{nT}.GMRAClassifierTest = ClassifierResults{k}.Timing.GMRAClassifierTest;
-    %     ACC(nT) = MRA{1}.
-    
-    % end
-    
-    %
-    % Opts = [];
-    % MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-    %
-    % % X: D by N, TrainGroup: 1 by N, Labels: 1 by N.
-    % Opts.Classifier = @matlabLDA_traintest;
-    % MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-    %
-    % % MRA_lda = GMRA_Classifier( X, TrainGroup, Labels);
-    % % addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
-    % Opts = [];
-    % Opts.debugMRA = MRA_matlablda.debugMRA;
-    % MRA_lda2 = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-    %
-    % % Classifier_Test
-    %
-    % ClassifierResults_lda2 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels);
-    % ClassifierResults_lda3 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @QDA_test);
-    % ClassifierResults_lda4 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @LDA_test);
-    % ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels, @matlabLDA_test);
-    %
-    
-    %% Accuracy
-    
-    labels_test = Labels(TrainGroup == 0);
-    count = 0;
-    % We min(node_error) here since alg doesn't have access to true labels for
-    % test data, but for BestK case, we want to compare it with test data in
-    % looking at the performance of best ks in each node.
-    for k = 1: n_classifiers
-        if isequal(classifier_test{k}, @LOL_test)
-            for i = 1: length(MRA{1}.Classifier.activenode_idxs) % for different nodes
-                node_pred = ClassifierResults{1}.Test.Labels.labels_pred{i};
-                node_idx = ClassifierResults{1}.Test.Labels.idx{i};
-                node_true = labels_test(node_idx);
-                for j = 1: length(node_pred) % for different ks
-                    if isempty(node_true)
-                        node_error(j) = 0;
-                    else
-                        node_error(j) = sum(node_true' ~= node_pred{j});
-                    end
-                end
-                min_node_error(i) = min(node_error);
-                count = count + numel(node_true);
-            end
-            ACC_GMRAClassifier(k) = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
-            
-        else % if not LOL_test, e.g. LDA_test
-            ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
-        end
-        %	disp('the count: ')
-        %	count
-    end
-    ACC(nT) = ACC_GMRAClassifier(k);
 end
+%
+% Opts = [];
+% MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
+%
+% % X: D by N, TrainGroup: 1 by N, Labels: 1 by N.
+% Opts.Classifier = @matlabLDA_traintest;
+% MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
+%
+% % MRA_lda = GMRA_Classifier( X, TrainGroup, Labels);
+% % addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
+% Opts = [];
+% Opts.debugMRA = MRA_matlablda.debugMRA;
+% MRA_lda2 = GMRA_Classifier( X, TrainGroup, Labels, Opts);
+%
+% % Classifier_Test
+%
+% ClassifierResults_lda2 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels);
+% ClassifierResults_lda3 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @QDA_test);
+% ClassifierResults_lda4 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @LDA_test);
+% ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels, @matlabLDA_test);
+%
+
+%% Accuracy
+
+labels_test = Labels(TrainGroup == 0);
+count = 0;
+for k = 1: n_classifiers
+    if isequal(classifier_test{k}, @LOL_test)
+        for i = 1: length(MRA{1}.Classifier.activenode_idxs) % for different nodes
+            node_pred = ClassifierResults{1}.Test.Labels.labels_pred{i};
+            node_idx = ClassifierResults{1}.Test.Labels.idx{i};
+            node_true = labels_test(node_idx);
+            for j = 1: length(node_pred) % for different ks
+                if isempty(node_true)
+                    node_error(j) = 0;
+                else
+                    node_error(j) = sum(node_true' ~= node_pred{j});
+                end
+            end
+            min_node_error(i) = min(node_error);
+            count = count + numel(node_true);
+        end
+        ACC_GMRAClassifier(k) = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
+        
+    else % if not LOL_test, e.g. LDA_test
+        ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
+    end
+    %	disp('the count: ')
+    %	count
+end
+
+
 % save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
 return;
-
-
-
 %% Accuracy of Simple-LDA for comparison
 X = X'; Labels = Labels'; % D by N to N by D
 sample = X(TrainGroup == 0, :);

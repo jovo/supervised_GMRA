@@ -450,5 +450,66 @@ switch pDataSetName
         %   Labels      : row N vector of labels for the points
         Labels = speciesNum(1:N)';
         
+    case 'CIFAR_T10kt10k'
+        addpath(genpath('/home/collabor/yb8/data/cifar/cifar-10-batches-mat'))
+        load('data_batch_1.mat');
+	X_train	     = data; % Ntrain = 10000 by D = 3072;
+	labels_train = labels; % Ntrain by 1
+	clear data labels
+	
+	load('test_batch.mat');
+	X_test 	     = data;
+	labels_test  = labels;
+	clear data labels batch_label
+
+	Ntrain = size(X_train,1);
+	Ntest = size(X_test,1);
+	X = [X_train' X_test']; % D by Ntrain+Ntest
+	Labels = [labels_train' labels_test'];
+	TrainGroup = [ones(1, Ntrain) zeros(1, Ntest)];            
+        clear X_train X_test labels_train labels_test
+        
+	X = double(X);
+	Labels = double(Labels);
+
+ 
+    case 'CIFAR_T50kt10k'
+        addpath(genpath('/home/collabor/yb8/data/cifar/cifar-10-batches-mat'))
+        load('data_batch_1.mat');
+	X_train	     = data; % Ntrain = 10000 by D = 3072;
+	labels_train = labels; % Ntrain by 1
+	load('data_batch_2.mat');
+	X_train	     = [X_train; data];
+	labels_train = [labels_train; labels];
+	load('data_batch_3.mat');
+	X_train	     = [X_train; data];
+	labels_train = [labels_train; labels];
+	load('data_batch_4.mat');
+	X_train	     = [X_train; data];
+	labels_train = [labels_train; labels];
+	load('data_batch_5.mat');
+	X_train	     = [X_train; data];
+	labels_train = [labels_train; labels];
+	clear data labels
+	
+	load('test_batch.mat');
+	X_test 	     = data;
+	labels_test  = labels;
+	clear data labels batch_label
+
+	Ntrain = size(X_train,1);
+	Ntest = size(X_test,1);
+	X = [X_train' X_test']; % D by Ntrain+Ntest
+	Labels = [labels_train' labels_test'];
+	TrainGroup = [ones(1, Ntrain) zeros(1, Ntest)];            
+        clear X_train X_test labels_train labels_test
+        
+	X = double(X);
+	Labels = double(Labels);
+
+
+
+
+
 end
 

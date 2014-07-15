@@ -22,8 +22,9 @@ if ~Opts.COMBINED %|| current_node_idx == length(GWT.cp),
 else
     coeffs = cat(2, cat(1, Data_GWT.CelScalCoeffs{Data_GWT.Cel_cpidx == Opts.current_node_idx}), cat(1,Data_GWT.CelWavCoeffs{Data_GWT.Cel_cpidx == Opts.current_node_idx}))';
 end
-UseX = 0;
-if UseX
+%UseX = 0;
+if Opts.UseX
+    disp('using X');
     coeffs = Opts.X_train(:, Data_GWT.PointsInNet{Opts.current_node_idx});
 end
 dataLabels = Labels_train(Data_GWT.PointsInNet{Opts.current_node_idx});
