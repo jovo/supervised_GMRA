@@ -28,7 +28,7 @@ Timing.GMRAClassifier = cputime;
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    Opts.GMRAopts.ManifoldDimension = 200;
+    Opts.GMRAopts.ManifoldDimension = 0;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -111,7 +111,6 @@ fprintf('done.');
 
 %% LOL TIME (if LOL is used for embedding, without GWT, with fixedK, without CV)
 if Opts.LOL_Projection
-    disp('LOL Projection on the whole matrix');
     types{1} = 'DENL';
     Kmax = Opts.GMRAopts.ManifoldDimension;
     MRA.Timing.LOL = cputime;

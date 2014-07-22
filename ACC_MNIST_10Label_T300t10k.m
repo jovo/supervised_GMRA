@@ -1,5 +1,3 @@
-close all;
-
 ACC_GMRALOL_GW =[0.96665 0.96651 0.97051 0.96806 0.95932 0.94529 0.91850 0.90954]
 k = [3 5 10 20 40 100 200 400];
 figure;
@@ -84,7 +82,7 @@ ACC_LOL = [0.8774
     0.8017
     0.8017
     0.8017
-    0.8017];
+    0.8017]
 
 hold on; plot(ks, ACC_LOL, 'go-')
 
@@ -110,9 +108,7 @@ STD_ACC_GMRALOL_GW = [0.0064 0.0049 0.0066  0.0048 0.0071  0.0059   0.0075 0.040
 k = [3 5 10 20 40 100 200 400];
 Timing_GMRALOL_GW = [14.3562 13.6465  14.2837   15.6790 14.0767 14.6649  7.0487 11.9562];
 Timing_GMRA_GMRALOL_GW = [9.0197 8.4523 8.9723 8.2803 7.0418   6.3813  1.9865 2.3363];
-figure;
-plot(k, ACC_GMRALOL_GW_2, 'bo-')
-hold on;
+
 
 % GMRALDA_GW: LDA_test 1, local_LOL_analysis 0, UseLOL 0, UseX 0
 % N = 40;
@@ -121,8 +117,7 @@ STD_ACC_GMRALOL_GW = [ 0.0138 0.0133 0.0083 0.0062 0.0050 0.0406];
 k = [5 10 20 40 100 200];
 Timing_GMRALDA_GW = [ 6.8490 6.5993 8.7088 8.3792 9.9812  5.9775];
 Timing_GMRA_GMRALDA_GW = [ 1.3380 1.3887 1.4785 1.6105 2.0650  1.1835];
-plot(k, ACC_GMRALDA_GW_2, 'bx-');
-hold on;
+
 
 % GMRALOL_X (FixedK): LDA_test 1, local_LOL_analysis 0, UseLOL 1, UseX 1
 ACC_GMRALOL_X_2 =   [0.9496 0.9645 0.9680 0.9633 0.9579 0.9438 ];
@@ -131,16 +126,12 @@ k = [3 5 10 20 40 100 ];
 Timing_GMRALOL_X = [7.4155 7.2812 7.1120  9.9882 9.4085 10.2040];
 Timing_GMRA_GMRALOL_X = [1.3008 1.3228 1.3470 1.5395 1.6702 2.0055];
 Timing_LOL_GMRALOL_X = [0.4212 0.3920 0.3918 0.4185 0.3977 0.3860];
-plot(k, ACC_GMRALOL_X_2, 'ko-');
-hold on;
 
 % GMRALOL_X (TrainK): LOL_test 5, local_LOL_analysis 0, UseLOL 0, UseX 1
 ACC_GMRALOL_X_TrainK_2 =   [0.9525 ];
 STD_ACC_GMRALOL_X_TrainK = [0.0143 ];
 Timing_GMRALOL_X_TrainK = [88.1878 ];
 Timing_GMRA_GMRALOL_X_TrainK = [1.2650 ];
-plot(ks, repmat(ACC_GMRALOL_X_TrainK_2, size(ks)), 'k-')
-hold on;
 % The accuracy value is less than the previous trial N = 20. Check why
 % => ok, if I run N= 20 again, I get a higher value, its just N not big
 % enough. N=40 again, I get the same 0.9525 accuracy.
@@ -157,8 +148,7 @@ STD_ACC_GMRALDA_X = [ 0.0133 0.0080 0.0119 0.0133];
 k = [ 5 10 20 200 ];
 Timing_GMRALDA_X = [ 114.0545 114.4820 107.1535 24.6430];
 Timing_GMRA_GMRALDA_X = [ 1.2730 1.3360 1.4005 1.1500 ];
-plot(k, ACC_GMRALDA_X, 'kx--')
-hold on;
+
 % I ran k = 200 for N = 20 just to be sure that changing k would not
 % affect this algorithm, but it does.
 % The ManifoldDimension influence in the FGWT may not be reflected
@@ -175,100 +165,11 @@ hold on;
 %         GMRAClassifier: 121.5800
 %     GMRAClassifierTest: 4.2600
 
-% LOL
-hold on; plot(ks, ACC_LOL, 'go-')
-
 % GMRA:LDA:GW (ManifoldDimension = 0)
-ACC_GMRALDA_GW_MD0 =   [ 0.9648 ];
-STD_ACC_GMRALDA_GW_MD0 = [ 0.0078 ];
-Timing_GMRALDA_GW_MD0 = [ 9.3322 ];
-Timing_GMRA_GMRALDA_GW_MD0 = [ 1.6643];
-plot(ks, repmat(ACC_GMRALDA_GW_MD0, size(ks)), 'm--');
-hold on;
-
-% GMRA:LOL:GW (ManifoldDimension = 0)
-ACC_GMRALOL_GW_MD0 = [ 0.9655 ];
-STD_ACC_GMRALOL_GW_MD0 = [ 0.0074];
-Timing_GMRALOL_GW_MD0 = [9.9105];
-Timing_GRMA_GMRALOL_GW_MD0 = [ 2.0545];
-plot(ks, repmat(ACC_GMRALOL_GW_MD0, size(ks)), 'mx-');
-hold on;
-
-
-
-
-% ACC_GMRALOL_GW_2
-% ACC_GMRALDA_GW_2
-% ACC_GMRALOL_X_2
-% ACC_GMRALOL_X_TrainK_2
-% ACC_GMRALDA_X
-% ACC_GMRALDA_GW_MD0
-
-legend('GMRALOL:GW (FixedK)', 'GMRALDA:GW (FixedK)', 'GMRALOL:X (FixedK)', ...
-    'GMRALOL:X (TrainedK[CV])', ...
-    'GMRALDA:X (No K)', 'LOL (FixedK)', ...
-    'GMRALDA:GW (SVDecay K)', 'GMRALOL:GW (SVDecay K)')
-
-title('Accuracy: MNIST012Triple Training:0.3k/Test:10k: #trials=40', 'FontSize', 22)
-xlabel('k')
-ylabel('Accuracy')
-
-% Timing Plot
-figure; 
-k = [3 5 10 20 40 100 200 400];
-
-plot(k, Timing_GMRALOL_GW, 'x-');
-hold on;
-
-k = [5 10 20 40 100 200];
-plot(k, Timing_GMRALDA_GW, 'rx-');
-hold on; 
-
-k = [3 5 10 20 40 100 ];
-plot(k, Timing_GMRALOL_X, 'gx-');
-hold on;
-
-plot(ks, repmat(Timing_GMRALOL_X_TrainK, size(ks)), 'kx-')
-hold on;
-
-k = [ 5 10 20 200 ];
-plot(k, Timing_GMRALDA_X, 'mx-');
-hold on;
-
-plot(ks, repmat(Timing_GMRALDA_GW_MD0, size(ks)), 'yx-')
-hold on;
-
-plot(ks, repmat(Timing_GMRALOL_GW_MD0, size(ks)), 'ko-');
-
-legend('GMRALOL:GW (FixedK)', 'GMRALDA:GW (FixedK)', 'GMRALOL:X (FixedK)', ...
-    'GMRALOL:X (TrainK)', 'GMRALDA:X (FixedK)','GMRALDA:GW (SVDecay K)', ...
-    'GMRALOL:GW (SVDecayK)')
-
-
-
-
-%% ACC_CIFAR_T10kt10k (DataSet19); Ntrials=40;
-
-
-%LOL
-maxACC_CIFAR_T10kt10k_LOL= [0.3861];
-STD_ACC_CIFAR_T10kt10k_LOL = []; % Fixed Dataset
-min_ks = 56;
-reqDim_SV = 50;
-Timing_CIFAR_T10kt10k_LOL = [ 974.5292];
-STD_Timing_CIFAR_T10kt10k_LOL = [3.0857];
-% Timing is 974, but I felt it takes less time than GMRA:LDA_X, which was
-% very long and was like 100.. Need to check on this.
-
-
-%LDA
-
-ACC_CIFAR_T10kt10k_LDA= [ 0.2618 ];
-STD_ACC_CIFAR_T10kt10k_LDA = []; % Fixed data set
-Timing_CIFAR_T10kt10k_LDA = [ 52.4235 ];
-STD_Timing_CIFAR_T10kt10k_LDA = [0.7208];
-
-%% GMRALOL:GW
+ACC_GMRALDA_GW_MD0 =   [ 0.9678 ];
+STD_ACC_GMRALDA_GW_MD0 = [ 0.0076 ];
+Timing_GMRALDA_GW_MD0 = [ 9.9523];
+Timing_GMRA_GMRALDA_GW_MD0 = [ 1.9595 ];
 
 
 

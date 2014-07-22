@@ -32,7 +32,6 @@ dataIdxs_train      = Data_train_GWT.PointsInNet{Opts.current_node_idx};
 % Addition to use X instead of Wavelet Coeffs
 %UseX = 0;
 if Opts.UseX
-    disp('Using X on the train');
     coeffs_train = Opts.X_train(:, dataIdxs_train)';
 end
 

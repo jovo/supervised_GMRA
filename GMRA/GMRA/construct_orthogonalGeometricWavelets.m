@@ -6,7 +6,7 @@ gW  = construct_vNets_NoSVD(gW,root);
 if ~gW.opts.localEmbedding
     gW  = local_SVD_analysis(gW,root);
 else
-    using('local_LOL')
+    % disp('using local_LOL')
     gW  = local_LOL_analysis(gW,root);
 end
 

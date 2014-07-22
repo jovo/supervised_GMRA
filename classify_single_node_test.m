@@ -33,7 +33,6 @@ dataIdxs_test      = Data_test_GWT.PointsInNet{Opts.current_node_idx};
 % Addition to use X instead of Wavelet Coeffs
 %UseX = 0;
 if Opts.UseX
-    disp('using X on the test');
     coeffs_test = MRAClassifier.Data_test(:, dataIdxs_test);
 end
 

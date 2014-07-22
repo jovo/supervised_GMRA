@@ -28,7 +28,7 @@ Timing.GMRAClassifier = cputime;
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    Opts.GMRAopts.ManifoldDimension = 200;
+    Opts.GMRAopts.ManifoldDimension = 0;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -61,8 +61,11 @@ else
 end
 if ~isfield(Opts, 'LOL_Projection')
     Opts.LOL_Projection = 0;
-else
-    Opts
+end
+if ~isfield(Opts, 'UseX')
+    Opts.UseX = 0;
+end
+
 fcn_train_single_node   = @classify_single_node_train;
 fcn_traincv_single_node = @classify_single_node_crossvalidation;
 
@@ -112,7 +115,7 @@ if Opts.LOL_Projection
     Kmax = Opts.GMRAopts.ManifoldDimension;
     MRA.Timing.LOL = cputime;
     [Proj, ~] = LOL(X_train, Labels_train,types,Kmax);
-    MRA.Timing_LOL = cputime - MRA.Timing_LOL;
+    MRA.Timing.LOL = cputime - MRA.Timing.LOL;
     X_train = Proj{1}.V* X_train;
     MRA.X_test  = Proj{1}.V* X_test;    
 end
@@ -149,7 +152,7 @@ end;
 % This routine calculates errors for the children of the current node so we need to first calculate the root node error
 [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
                                     struct('current_node_idx',root_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-                                    'LOL_alg', Opts.LOL_alg, 'X_train', X_train ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
+                                    'LOL_alg', Opts.LOL_alg, 'X_train', X_train, 'UseX',Opts.UseX ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type
 % disp('Lets look at the root node error')
 % total_errors
 % Record the results for the root node
@@ -175,7 +178,7 @@ while (~activenode_idxs.isEmpty())
         % Calculate the error on the current child
         [total_errors, std_errors, min_ks] = fcn_traincv_single_node( MRA.Data_train_GWT, Labels_train, ...
             struct('current_node_idx',current_child_idx, 'COMBINED', COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-             'LOL_alg', Opts.LOL_alg, 'X_train', X_train ) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
+             'LOL_alg', Opts.LOL_alg, 'X_train', X_train, 'UseX',Opts.UseX) ); % Added Opts.LOLalg for an option for the LOL transformer/decider type) );                
         results(current_child_idx).self_error           = total_errors;                 % Record the results for the current child
         results(current_child_idx).self_std             = std_errors;
         results(current_child_idx).error_value_to_use   = UNDECIDED;
@@ -324,7 +327,7 @@ for k = 1:length(MRA.Classifier.activenode_idxs),
     [MRA.Classifier.Classifier{current_node_idx},dataIdxs_train] = ...
         fcn_train_single_node( MRA.Data_train_GWT, Labels_train, min_ks, ...
           struct('current_node_idx',current_node_idx, 'COMBINED',COMBINED, 'Priors',Opts.Priors,'Classifier',Opts.Classifier, ...
-               'LOL_alg',Opts.LOL_alg, 'X_train', X_train ) );
+               'LOL_alg',Opts.LOL_alg, 'X_train', X_train, 'UseX',Opts.UseX) );
     MRA.Classifier.ModelTrainLabels{current_node_idx} = Labels_train(dataIdxs_train);
 end;
 %MRA.results = results;

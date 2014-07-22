@@ -144,6 +144,8 @@ for nT = 1: nTrials
                 node_pred = ClassifierResults{1}.Test.Labels.labels_pred{i};
                 node_idx = ClassifierResults{1}.Test.Labels.idx{i};
                 node_true = labels_test(node_idx);
+                disp('the following should be 1 for BestTrainK case: ')
+                length(node_pred)
                 for j = 1: length(node_pred) % for different ks
                     if isempty(node_true)
                         node_error(j) = 0;
@@ -165,6 +167,17 @@ for nT = 1: nTrials
     ACC(nT) = ACC_GMRAClassifier(k);
 end
 % save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
+mean_ACC = mean(ACC)
+std_ACC = std(ACC)
+
+for i = 1:numel(Timing)
+    Timing_total(i) = Timing{i}.GMRAClassifier + Timing{i}.GMRAClassifierTest;
+    Timing_GMRA(i) = Timing{i}.GW;
+end
+
+mean_Timing_Total =mean(Timing_total(:))
+mean_Timing_GMRA = mean(Timing_GMRA(:))
+
 return;
 
 

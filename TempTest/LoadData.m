@@ -335,7 +335,7 @@ switch pDataSetName
  
     case 'MNIST_EasyAllDigits_T0.3K_t10K'
         
-        [X, vLabels]=Generate_MNIST([0.1, 0.1, 0.1].*10^3, struct('Sampling', 'RandN', 'QueryDigits', [0, 1, 2], 'ReturnForm', 'vector')); % n = 9 x p = 784 (=28^2)
+        [X, vLabels]=Generate_MNIST([30 30 30 30 30  30 30 30 30 30], struct('Sampling', 'RandN', 'QueryDigits', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'ReturnForm', 'vector')); % n = 300 x p = 784 (=28^2)
         X = X';                         %   X : D by N matrix of N points in D dimensions
         Ntrain = size(X, 2);
         Labels = vLabels';              %   Labels      : row N vector of labels for the points

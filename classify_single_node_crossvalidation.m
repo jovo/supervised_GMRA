@@ -24,7 +24,6 @@ else
 end
 %UseX = 0;
 if Opts.UseX
-    disp('using X');
     coeffs = Opts.X_train(:, Data_GWT.PointsInNet{Opts.current_node_idx});
 end
 dataLabels = Labels_train(Data_GWT.PointsInNet{Opts.current_node_idx});
