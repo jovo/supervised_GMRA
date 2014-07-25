@@ -154,6 +154,7 @@ for nT = 1: nTrials
         [ task, ks] = set_task_LOL( Opts, size(data_train,2) );
         Opts.task = task;
         Opts.task.ks = ks;
+	Opts.task.ks =[1 400];
         
         if any(TrainK == 2)
             %% Local dimension based on local singular value decay of PCA and of LOL

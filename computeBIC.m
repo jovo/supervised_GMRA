@@ -3,57 +3,51 @@ function BIC = computeBIC(X_train, Labels_train, X_test, paramsBIC, classifier)
 
 %% Parameters for BIC
 
-disp('PriorProb, PooleCov, invCov, GroupMean, Group, nGroup')
-   size(paramsBIC.PriorProb)
-   size(paramsBIC.PooledCov)
-   size(paramsBIC.invCov)
-   size(paramsBIC.GroupMean)
-   A = paramsBIC.PriorProb;
-   B = paramsBIC.PooledCov;
-   C = paramsBIC.invCov;
-   D = paramsBIC.GroupMean;
+% disp('PriorProb, PooleCov, invCov, GroupMean, Group, nGroup')
+%   size(paramsBIC.PriorProb)
+%   size(paramsBIC.PooledCov)
+%   size(paramsBIC.invCov)
+%   size(paramsBIC.GroupMean)
+%   A = paramsBIC.PriorProb;
+%   B = paramsBIC.PooledCov;
+%   C = paramsBIC.invCov;
+%   D = paramsBIC.GroupMean;
 %   E = paramsBIC.Group;
-   F = paramsBIC.nGroup;
-whos A B C D E F
+%   F = paramsBIC.nGroup;
+% whos A B C D E F
+
 %% Compute BIC
+disp('check nGroup')
+sum(paramsBIC.nGroup)
 
-% Sort by Groups
-disp('check size of classifier')
-size(classifier)
-size(classifier.W)
-disp('check X_train size')
-X_train = X_train';
-size(X_train)
+X_train = X_train'; % Ntrain x k
+[Ntrain, Ktrain]  = size(X_train)
 
-disp('check size of invCov')
-size(paramsBIC.invCov)
-% For each k, I need to find the corresponding parameters as follows:
-
+% Compute Maximized value of the likelihood function
 logdetcov = -0.5*logdet(paramsBIC.PooledCov); 
-disp('size of logdetcov, logdetcov')
-size(logdetcov)
-logdetcov
-
-% What is paramsBIC.Group
-disp('what is paramsBIC.Group')
-size(paramsBIC.Group)
-% paramsBIC.Group
-%        Group      = (Target == ClassLabel(i));
+otherConst = -0.5*log(2*pi);
+TotalConst = Ntrain*(logdetcov + otherConst);
+PriorTerm = paramsBIC.nGroup * paramsBIC.PriorProb';
+MainTerm = 0; 
 for i = 1: numel(classifier.ClassLabel)
-     Group = (Labels_train == ClassLabel(i));
-     centeredX = bsxfun(@minus, X_train(Group,:), paramsBIC.GroupMean);
-
+     Group = (Labels_train == classifier.ClassLabel(i));
+     centeredX = bsxfun(@minus, X_train(Group,:), paramsBIC.GroupMean(i));
+     mainterm = centeredX*paramsBIC.invCov;
+     MainTerm = MainTerm -0.5*sum(sum(mainterm.*centeredX, 2));
 end  
 
-disp('checking the size of X_train for this group and Group mean')
-size(X_train(paramsBIC.Group,:))
-size(paramsBIC.GroupMean)
+L = TotalConst + PriorTerm + MainTerm; % Likelihood function: L(Data|Model); the joint probability of data and label 
 
-% disp('size
-% centeredX = bsxfun(@minus, X_train(paramsBIC.Group,:), paramsBIC.GroupMean);
-disp('checking the size of the centeredX')
-size(centeredX)
-% centeredX =  X_train(paramsBIC.Group,:)-paramsBIC.GroupMean;
+% Determine the number of free parameters
+numMean		= numel(paramsBIC.nGroup)
+numPrior	= numel(paramsBIC.nGroup) 
+numCov 		= 1;
+numClassifierCoeff = numel(classifier.W) % (Dtrain+1)* ClassLabel
+disp('check whether same')
+(Dtrain + 1)* numel(paramsBIC.ClassLabel)
+%numProjectionMatrixCoeff
+
+BIC = -2*L + k*(log(n) - log(2*pi)); 
 disp('hi')
 % normalDist = -0.5*logdet(paramsBIC.PooledCov) - centeredX'*paramsBIC.invCov*centeredX - 
 % normalDist = -0.5*logdet(paramsBIC.PooledCov) - (X_train(paramsBIC.Group,:)-paramsBIC.GroupMean)'*paramsBIC.invCov*
