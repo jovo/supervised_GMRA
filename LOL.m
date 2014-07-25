@@ -35,7 +35,7 @@ P.groups=P.groups(IX);
 P.mu=P.mu(:,IX);
 for k=1:P.Ngroups, P.idx{k}=idx{IX(k)}; end
 if nargin<4, Kmax=min(P.n,P.D); end
-% disp('aaa')
+
 %% get delta matrix (in R^{D x K-1}
 Ds=nan(ntypes,1);
 for i=1:ntypes, Ds(i)=types{i}(1); end; Ds=char(Ds)';
@@ -51,13 +51,13 @@ if any(strfind(Ds,'D')),
     end
     P.delta=bsxfun(@minus,mu(:,2:end),mu(:,1));
 end
-% disp('bbb')
+
 if any(strfind(Ds,'S')),
     [~,idx] = sort(abs(P.delta),'descend');
     P.sdelta=P.delta;
     P.sdelta(idx(10:end))=0;
 end
-% disp('ccc')
+
 %% get eigenvectors (or approximations thereof)
 Vs=nan(ntypes,1); Fs=nan(ntypes,1);
 for i=1:ntypes, Vs(i)=types{i}(2); end; Vs=char(Vs)';

@@ -1,0 +1,11 @@
+function BIC = computeBIC(X_train, Labels_train, X_test, paramsBIC)
+%computeBIC.m computes the BIC value of each LOL model with different K.
+
+%% Parameters
+
+% Compute BIC for each K
+normalDist = -0.5*(log(det(cov_mat)) - (X-mean)'*inv(cov_mat)*(X-mean) - D*log(2*pi));
+max_L = sum(normalDist*prior)
+
+end
+

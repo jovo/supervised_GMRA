@@ -11,11 +11,9 @@ LabelsInNode 	    = gMRA.Y(PointsInThisNode);
 gMRA.Centers{node}  = mean(lPtsInNode,2);
 Y                   = bsxfun(@minus,lPtsInNode,gMRA.Centers{node});         % Centered data in the current node
 gMRA.Radii(node)    = sqrt(max(sum(Y.^2,1)));
-disp('LOL')
+
 %% Compute local SVD
 if gMRA.isaleaf(node) || gMRA.opts.ManifoldDimension==0 
-    disp('checking the GMRA.Y')
-    size(gMRA.Y)
     %% Local dimension is not fixed, but based on local singular value decay
     [V,S,~]             = randPCA(Y,min([min(size(Y)),gMRA.opts.MaxDim]));                      % Use fast randomized PCA
     remEnergy           = sum(sum(Y.^2))-sum(diag(S).^2);
@@ -26,10 +24,15 @@ if gMRA.isaleaf(node) || gMRA.opts.ManifoldDimension==0
         errorType = 'relative';
     end
     reqDim = min(numel(diag(S)), mindim(gMRA.Sigmas{node}, errorType, gMRA.opts.threshold0(node))); 
-    gMRA.ScalFuns{node} = V(:,1:reqDim);
+    % Changed for local_LOL_analysis
+%     gMRA.ScalFuns{node} = V(:,1:reqDim);
+    types{1} = 'DENL';
+    Kmax = reqDim + 1;
+    [Proj, ~] = LOL(lPtsInNode,LabelsInNode,types,Kmax);
+    gMRA.ScalFuns{node} = Proj{1}.V';
 else
     %% Manifold dimension is given
-    disp('LOL_really')
+%     disp('LOL_really')
     %     [V,S,~]             = randPCA(Y,min([gMRA.opts.ManifoldDimension,min(size(Y))]));           % Use fast randomized PCA
     %     gMRA.Sigmas{node}   = diag(S)/sqrt(gMRA.Sizes(node));
     gMRA.Sigmas{node}   = 0;

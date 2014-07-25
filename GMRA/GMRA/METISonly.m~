@@ -1,4 +1,4 @@
-function gMRA = GMRA(X,opts,Y)
+function gMRA = METISonly(X,opts,Y, X_test)
 
 %% Geometric MultiResolution Analysis (GMRA) for Data Sets
 %
@@ -212,6 +212,7 @@ gMRA.isaleaf    = leafnodes(gMRA.cp);
 gMRA.LeafNodes  = find(gMRA.isaleaf);
 gMRA.IniLabels  = dissolve_separator(X, gMRA.cp, cmember, gMRA.LeafNodes, 'centers');
 
+
 %% Initialize GWT structure
 nAllNets        = length(gMRA.cp);
 inputThreshold0 = gMRA.opts.threshold0; 
@@ -235,39 +236,84 @@ end
 gMRA.Radii        = zeros(1,nAllNets);
 gMRA.Sizes        = zeros(1,nAllNets);
 gMRA.PointsInNet  = cell(1, nAllNets);
-gMRA.Centers      = cell(1,nAllNets);
-gMRA.ScalFuns     = cell(1,nAllNets);
-gMRA.Sigmas       = cell(1,nAllNets);
-gMRA.WavBases     = cell(1,nAllNets);
-gMRA.WavConsts    = cell(1,nAllNets);
-gMRA.WavSingVals  = cell(1,nAllNets);
-
-if gMRA.opts.sparsifying,
-    gMRA.Projections = cell(1,nAllNets); % coordinates of the projected data to each node 
-end
-
-if gMRA.opts.splitting
-    gMRA.WavDimsPsiCap = zeros(1,nAllNets); % intersection dimensions of the wavelet subspaces associated to the children of a specific node
-end
+% gMRA.Centers      = cell(1,nAllNets);
+% gMRA.ScalFuns     = cell(1,nAllNets);
+% gMRA.Sigmas       = cell(1,nAllNets);
+% gMRA.WavBases     = cell(1,nAllNets);
+% gMRA.WavConsts    = cell(1,nAllNets);
+% gMRA.WavSingVals  = cell(1,nAllNets);
+% 
+% if gMRA.opts.sparsifying,
+%     gMRA.Projections = cell(1,nAllNets); % coordinates of the projected data to each node 
+% end
+% 
+% if gMRA.opts.splitting
+%     gMRA.WavDimsPsiCap = zeros(1,nAllNets); % intersection dimensions of the wavelet subspaces associated to the children of a specific node
+% end
     
 % back up gMRA.cp
 gMRA.cp_orig = gMRA.cp;
 
 %% Construct geometric wavelets
-if gMRA.opts.verbose,     fprintf('\n Constructing geometric wavelets...'); end; %tic
+if gMRA.opts.verbose,     fprintf('\n Constructing the tree...'); end; %tic
 if gMRA.opts.orthogonalizing
-    gMRA = construct_orthogonalGeometricWavelets( gMRA );           % orthogonal geometric wavelets
+    %     gMRA = construct_orthogonalGeometricWavelets( gMRA );           % orthogonal geometric wavelets
+    root = find(gMRA.cp==0);
+    gMRA  = construct_vNets_METISonly(gMRA,root);
 elseif gMRA.opts.pruning
     gMRA = construct_pruningGeometricWavelets( gMRA );               % minimal encoding-cost pruning
 else
-    gMRA = construct_GMRA( gMRA );                                           % best approximations, no pruning          
+    gMRA = construct_GMRA( gMRA );                                           % best approximations, no pruning
 end
-if gMRA.opts.verbose,     fprintf('done. (%.3f sec) \n',toc); end; 
+if gMRA.opts.verbose,     fprintf('done. (%.3f sec) \n',toc); end;
 
-%% Compute cost of dictionary
-gMRA.DictCosts = computeDictionaryCost(gMRA);
 
-%%
+J = max(gMRA.Scales); % number of scales
+nLeafNodes = numel(gMRA.LeafNodes);
+
+%% Initialization 
+DataGWT = struct();
+
+
+%% LOL for the nodes in each scale
+Scale = 3;
+nodeInScale = find(gMRA.Scales == Scale);
+
+% Find the nearest leaf to each data point
+[~, gMRA.nearestCenters, gmra.dists2NearestLeafNodes] = nrsearch(cat(2,gMRA.Centers{nodeInScale}), X_test, 1, 0, [], struct('ReturnAsArrays',1));
+gMRA.NodeLabels = nodeInScale(gMRA.nearestCenters);
+% gMRA.leafNodeSizes = zeros(1,nLeafNodes);
+% 
+
+for i = 1: numel(nodeInScale)
+    %Train data
+    nodeIdx = nodeInScale(i);
+    IdxNode = gMRA.PointsInNet{nodeIdx};
+    X_train_node = X(:, IdxNode);
+    Y_train_node = Y(:, IdxNode);
+   
+    % Test data
+    netPts{i} = find(gMRA.NodeLabels == nodeIdx);
+    X_test_node = X_test(:, netPts{i});
+    
+    % LOL in each nodes
+    for k = 1: numel(kslist)
+        Opts.task.ks = kslist(i);
+        
+        tic;
+        Timing_onset_LOL = cputime;
+        [labels_pred_LOL, n_errors_LOL, classifier_LOL, ~] = LOL_traintest(X_train_node, Y_train_node, X_test_node, [], Opts );
+        gMRA.Time.tictoc_LOL(k) = toc;
+        gMRA.Time.cputime_LOL(k) = cputime - Timing_onset_LOL;
+        
+        gMRA.labels_pred_METISLOL(k, netPts{i}) = labels_pred_LOL;
+    end
+end
+
+
+
+
 gMRA.Timing.GW = cputime-gMRA.Timing.GW;
 
+fprintf('debugging 2014-06-26 \n')
 return;

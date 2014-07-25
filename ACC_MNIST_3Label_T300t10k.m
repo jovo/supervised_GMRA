@@ -1,4 +1,4 @@
-close all;
+% close all;
 
 ACC_GMRALOL_GW =[0.96665 0.96651 0.97051 0.96806 0.95932 0.94529 0.91850 0.90954]
 k = [3 5 10 20 40 100 200 400];
@@ -111,7 +111,7 @@ k = [3 5 10 20 40 100 200 400];
 Timing_GMRALOL_GW = [14.3562 13.6465  14.2837   15.6790 14.0767 14.6649  7.0487 11.9562];
 Timing_GMRA_GMRALOL_GW = [9.0197 8.4523 8.9723 8.2803 7.0418   6.3813  1.9865 2.3363];
 figure;
-plot(k, ACC_GMRALOL_GW_2, 'bo-')
+plot(k, ACC_GMRALOL_GW_2, 'rx-')
 hold on;
 
 % GMRALDA_GW: LDA_test 1, local_LOL_analysis 0, UseLOL 0, UseX 0
@@ -121,7 +121,7 @@ STD_ACC_GMRALOL_GW = [ 0.0138 0.0133 0.0083 0.0062 0.0050 0.0406];
 k = [5 10 20 40 100 200];
 Timing_GMRALDA_GW = [ 6.8490 6.5993 8.7088 8.3792 9.9812  5.9775];
 Timing_GMRA_GMRALDA_GW = [ 1.3380 1.3887 1.4785 1.6105 2.0650  1.1835];
-plot(k, ACC_GMRALDA_GW_2, 'bx-');
+plot(k, ACC_GMRALDA_GW_2, 'kx-');
 hold on;
 
 % GMRALOL_X (FixedK): LDA_test 1, local_LOL_analysis 0, UseLOL 1, UseX 1
@@ -131,7 +131,7 @@ k = [3 5 10 20 40 100 ];
 Timing_GMRALOL_X = [7.4155 7.2812 7.1120  9.9882 9.4085 10.2040];
 Timing_GMRA_GMRALOL_X = [1.3008 1.3228 1.3470 1.5395 1.6702 2.0055];
 Timing_LOL_GMRALOL_X = [0.4212 0.3920 0.3918 0.4185 0.3977 0.3860];
-plot(k, ACC_GMRALOL_X_2, 'ko-');
+plot(k, ACC_GMRALOL_X_2, 'ro-');
 hold on;
 
 % GMRALOL_X (TrainK): LOL_test 5, local_LOL_analysis 0, UseLOL 0, UseX 1
@@ -139,7 +139,7 @@ ACC_GMRALOL_X_TrainK_2 =   [0.9525 ];
 STD_ACC_GMRALOL_X_TrainK = [0.0143 ];
 Timing_GMRALOL_X_TrainK = [88.1878 ];
 Timing_GMRA_GMRALOL_X_TrainK = [1.2650 ];
-plot(ks, repmat(ACC_GMRALOL_X_TrainK_2, size(ks)), 'k-')
+plot(ks, repmat(ACC_GMRALOL_X_TrainK_2, size(ks)), 'r^-')
 hold on;
 % The accuracy value is less than the previous trial N = 20. Check why
 % => ok, if I run N= 20 again, I get a higher value, its just N not big
@@ -157,7 +157,7 @@ STD_ACC_GMRALDA_X = [ 0.0133 0.0080 0.0119 0.0133];
 k = [ 5 10 20 200 ];
 Timing_GMRALDA_X = [ 114.0545 114.4820 107.1535 24.6430];
 Timing_GMRA_GMRALDA_X = [ 1.2730 1.3360 1.4005 1.1500 ];
-plot(k, ACC_GMRALDA_X, 'kx--')
+plot(k, ACC_GMRALDA_X, 'ko-')
 hold on;
 % I ran k = 200 for N = 20 just to be sure that changing k would not
 % affect this algorithm, but it does.
@@ -178,22 +178,21 @@ hold on;
 % LOL
 hold on; plot(ks, ACC_LOL, 'go-')
 
-% GMRA:LDA:GW (ManifoldDimension = 0)
-ACC_GMRALDA_GW_MD0 =   [ 0.9648 ];
+% GMRA:LDA:GW (ManifoldDimension = 0; SV Decay)
+ACC_GMRALDA_GW_MD0 =   [ 0.9668 ];
 STD_ACC_GMRALDA_GW_MD0 = [ 0.0078 ];
-Timing_GMRALDA_GW_MD0 = [ 9.3322 ];
+Timing_GMRALDA_GW_MD0 = [ 9.5322 ];
 Timing_GMRA_GMRALDA_GW_MD0 = [ 1.6643];
-plot(ks, repmat(ACC_GMRALDA_GW_MD0, size(ks)), 'm--');
+plot(ks, repmat(ACC_GMRALDA_GW_MD0, size(ks)), 'md-');
 hold on;
 
-% GMRA:LOL:GW (ManifoldDimension = 0)
-ACC_GMRALOL_GW_MD0 = [ 0.9655 ];
-STD_ACC_GMRALOL_GW_MD0 = [ 0.0074];
-Timing_GMRALOL_GW_MD0 = [9.9105];
-Timing_GRMA_GMRALOL_GW_MD0 = [ 2.0545];
-plot(ks, repmat(ACC_GMRALOL_GW_MD0, size(ks)), 'mx-');
+% GMRA:LOL:GW (ManifoldDimension = 0; SV Decay)
+ACC_GMRALOL_GW_MD0 = [ 0.9610 ];
+STD_ACC_GMRALOL_GW_MD0 = [ 0.0086];
+Timing_GMRALOL_GW_MD0 = [21.62];
+Timing_GRMA_GMRALOL_GW_MD0 = [  14.12];
+plot(ks, repmat(ACC_GMRALOL_GW_MD0, size(ks)), 'cd-');
 hold on;
-
 
 
 
@@ -215,42 +214,45 @@ ylabel('Accuracy')
 
 % Timing Plot
 figure; 
+hold on;
 k = [3 5 10 20 40 100 200 400];
-
-plot(k, Timing_GMRALOL_GW, 'x-');
+plot(k, Timing_GMRALOL_GW, 'rx-');
 hold on;
 
 k = [5 10 20 40 100 200];
-plot(k, Timing_GMRALDA_GW, 'rx-');
+plot(k, Timing_GMRALDA_GW, 'kx-');
 hold on; 
 
 k = [3 5 10 20 40 100 ];
-plot(k, Timing_GMRALOL_X, 'gx-');
+plot(k, Timing_GMRALOL_X, 'ro-');
 hold on;
 
-plot(ks, repmat(Timing_GMRALOL_X_TrainK, size(ks)), 'kx-')
+plot(ks, repmat(Timing_GMRALOL_X_TrainK, size(ks)), 'r^-')
 hold on;
 
 k = [ 5 10 20 200 ];
-plot(k, Timing_GMRALDA_X, 'mx-');
+plot(k, Timing_GMRALDA_X, 'ko-');
 hold on;
 
-plot(ks, repmat(Timing_GMRALDA_GW_MD0, size(ks)), 'yx-')
+plot(ks, repmat(Timing_GMRALDA_GW_MD0, size(ks)), 'md-')
 hold on;
 
-plot(ks, repmat(Timing_GMRALOL_GW_MD0, size(ks)), 'ko-');
+plot(ks, repmat(Timing_GMRALOL_GW_MD0, size(ks)), 'cd-');
+hold on;
+plot(ks, repmat(12.1315, size(ks)), 'go-')
 
 legend('GMRALOL:GW (FixedK)', 'GMRALDA:GW (FixedK)', 'GMRALOL:X (FixedK)', ...
     'GMRALOL:X (TrainK)', 'GMRALDA:X (FixedK)','GMRALDA:GW (SVDecay K)', ...
     'GMRALOL:GW (SVDecayK)')
 
+%% MNIST: LabelsAll: T0.3k:t10k: 
 
-
+return;
 
 %% ACC_CIFAR_T10kt10k (DataSet19); Ntrials=40;
 
 
-%LOL
+% LOL %%
 maxACC_CIFAR_T10kt10k_LOL= [0.3861];
 STD_ACC_CIFAR_T10kt10k_LOL = []; % Fixed Dataset
 min_ks = 56;
@@ -261,12 +263,49 @@ STD_Timing_CIFAR_T10kt10k_LOL = [3.0857];
 % very long and was like 100.. Need to check on this.
 
 
-%LDA
+% LDA %%
 
 ACC_CIFAR_T10kt10k_LDA= [ 0.2618 ];
 STD_ACC_CIFAR_T10kt10k_LDA = []; % Fixed data set
 Timing_CIFAR_T10kt10k_LDA = [ 52.4235 ];
 STD_Timing_CIFAR_T10kt10k_LDA = [0.7208];
+
+%% GMRALOL:GW (Fixed K)
+k = [20 40 100 200 ];
+ACC_GMRALOL_GW = [ ];
+STD_ACC_GMRALOL_GW = [ ];
+Timing_GMRALOL_GW = [ ];
+Timing_GMRA_GMRALOL_GW = [ ]; 
+
+%% GMRALDA:GW (Fixed K) :: (N = 4)
+k = [20 40 100 200];
+ACC_GMRALDA_GW = [0.3583 0.3661 0.3884 0.3872];
+STD_ACC_GMRALDA_GW = [ 0.0004 0.0011 0.0008 0.0008]; % Fixed Data Set
+Timing_GMRALDA_GW = [ 515.69 443.14 783.42 1918.3];
+Timing_GMRA_GMRALDA_GW = [116.59 141.122 328.96 912.9];
+
+%% GMRALOL:X (Fixed K)
+
+%% GMRALOL:X (CV K)
+
+%% GMRALDA:X (Later, probably low ACC)
+
+%% GMRALOL:GW: MD0 :: (N = 4)
+ACC_GMRALOL_GW_MD0 = [0.3131 ];
+STD_ACC_GMRALOL_GW_MD0 = [0.0038 ]; % Fixed Data Set
+Timing_GMRALOL_GW_MD0 = [ 15473 ];
+% The time is a false value, since I run SVD two times, when I can do only
+% one time.
+
+Timing_GMRA_GMRALOL_GW_MD0 = [ 14993 ];
+
+
+%% GMRALDA:GW: MD0 :: (N = 4)
+ACC_GMRALDA_GW_MD0 = [0.3881];
+STD_ACC_GMRALDA_GW_MD0 = [ 0.0007]; % Fixed Data Set
+Timing_GMRALDA_GW_MD0 = [ 793.7125];
+Timing_GMRA_GMRALDA_GW_MD0 = [ 324.4];
+
 
 
 

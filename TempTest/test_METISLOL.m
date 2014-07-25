@@ -78,9 +78,7 @@ for nT = 1: nTrials
         Opts.LOL_alg = LOL_alg{k};
         if exist('MRAsaved.mat') == 0
             disp('No previous MRA is saved. Running GMRA_Classifier.')
-            %         tic;
-            MRA{k} = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-            %         toc;
+            MRA{k} = METISLOL( X, TrainGroup, Labels, Opts);
         else
             MRA{1}= load('MRAsave.mat');
         end
@@ -100,75 +98,67 @@ for nT = 1: nTrials
         Timing{nT}.GMRAClassifierTest = ClassifierResults{k}.Timing.GMRAClassifierTest;
     end
     
-    
-    %
-    % Opts = [];
-    % MRA_lda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-    %
-    % % X: D by N, TrainGroup: 1 by N, Labels: 1 by N.
-    % Opts.Classifier = @matlabLDA_traintest;
-    % MRA_matlablda = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-    %
-    % % MRA_lda = GMRA_Classifier( X, TrainGroup, Labels);
-    % % addpath(genpath('C:\Users\Billy\Documents\GitHub\supervised_GRMA'))
-    % Opts = [];
-    % Opts.debugMRA = MRA_matlablda.debugMRA;
-    % MRA_lda2 = GMRA_Classifier( X, TrainGroup, Labels, Opts);
-    %
-    % % Classifier_Test
-    %
-    % ClassifierResults_lda2 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels);
-    % ClassifierResults_lda3 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @QDA_test);
-    % ClassifierResults_lda4 = GMRA_Classifier_test( MRA_lda2, X, TrainGroup, Labels, @LDA_test);
-    % ClassifierResults_matlablda = GMRA_Classifier_test( MRA_matlablda, X, TrainGroup, Labels, @matlabLDA_test);
-    %
-    
-    %% Accuracy
-    
     labels_test = Labels(TrainGroup == 0);
-    count = 0;
-    % We min(node_error) here since alg doesn't have access to true labels for
-    % test data, but for BestK case, we want to compare it with test data in
-    % looking at the performance of best ks in each node.
-    for k = 1: n_classifiers
-        if isequal(classifier_test{k}, @LOL_test)
-            for i = 1: length(MRA{1}.Classifier.activenode_idxs) % for different nodes
-                node_pred = ClassifierResults{1}.Test.Labels.labels_pred{i};
-                node_idx = ClassifierResults{1}.Test.Labels.idx{i};
-                node_true = labels_test(node_idx);
-                disp('the following should be 1 for BestTrainK case: ')
-                length(node_pred)
-                for j = 1: length(node_pred) % for different ks
-                    if isempty(node_true)
-                        node_error(j) = 0;
-                    else
-                        node_error(j) = sum(node_true' ~= node_pred{j});
-                    end
-                end
-                min_node_error(i) = min(node_error);
-                count = count + numel(node_true);
-            end
-            ACC_GMRAClassifier(k) = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
-            
-        else % if not LOL_test, e.g. LDA_test
-            ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
-        end
-        %	disp('the count: ')
-        %	count
+    for k = 1: size(MRA{1}.labels_pred_METISLOL, 1)
+        ACC(k, nT) = 1 - sum(MRA{1}.labels_pred_METISLOL(k,:) ~= labels_test)./numel(labels_test);
     end
-    ACC(nT) = ACC_GMRAClassifier(k);
-end
-% save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
-mean_ACC = mean(ACC)
-std_ACC = std(ACC)
-
-for i = 1:numel(Timing)
-    Timing_total(i) = Timing{i}.GMRAClassifier + Timing{i}.GMRAClassifierTest;
-    Timing_GMRA(i) = Timing{i}.GW;
-end
-
-mean_Timing_Total =mean(Timing_total(:))
-mean_Timing_GMRA = mean(Timing_GMRA(:))
+%        
+    figure;
+    
+    plot( ACC)
+    figure;
+    
+    plot(mean(ACC,2))
+%     
+%     
+%     
+%     
+%     %% Accuracy
+%     
+%     labels_test = Labels(TrainGroup == 0);
+%     count = 0;
+%     % We min(node_error) here since alg doesn't have access to true labels for
+%     % test data, but for BestK case, we want to compare it with test data in
+%     % looking at the performance of best ks in each node.
+%     for k = 1: n_classifiers
+%         if isequal(classifier_test{k}, @LOL_test)
+%             for i = 1: length(MRA{1}.Classifier.activenode_idxs) % for different nodes
+%                 node_pred = ClassifierResults{1}.Test.Labels.labels_pred{i};
+%                 node_idx = ClassifierResults{1}.Test.Labels.idx{i};
+%                 node_true = labels_test(node_idx);
+%                 disp('the following should be 1 for BestTrainK case: ')
+%                 length(node_pred)
+%                 for j = 1: length(node_pred) % for different ks
+%                     if isempty(node_true)
+%                         node_error(j) = 0;
+%                     else
+%                         node_error(j) = sum(node_true' ~= node_pred{j});
+%                     end
+%                 end
+%                 min_node_error(i) = min(node_error);
+%                 count = count + numel(node_true);
+%             end
+%             ACC_GMRAClassifier(k) = 1 - sum(min_node_error)./numel(Labels(TrainGroup == 0))
+%             
+%         else % if not LOL_test, e.g. LDA_test
+%             ACC_GMRAClassifier(k) = 1 - numel(find(ClassifierResults{k}.Test.Labels ~= Labels(TrainGroup == 0)))./numel(Labels(TrainGroup == 0))
+%         end
+%         %	disp('the count: ')
+%         %	count
+%     end
+%     ACC(nT) = ACC_GMRAClassifier(k);
+ end
+% % save('ACC_GMRAClassifier', 'ACC_GMRAClassifier');
+% % mean_ACC = mean(ACC)
+% % std_ACC = std(ACC)
+% % 
+% % for i = 1:numel(Timing)
+% %     Timing_total(i) = Timing{i}.GMRAClassifier + Timing{i}.GMRAClassifierTest;
+% %     Timing_GMRA(i) = Timing{i}.GW;
+% % end
+% % 
+% % mean_Timing_Total =mean(Timing_total(:))
+% % mean_Timing_GMRA = mean(Timing_GMRA(:))
 
 return;
 

@@ -41,6 +41,7 @@ end
 
 
 %% GMRA Classification Conditions
+Opts.METISLOL = input('Skip Geometric Wavelets & just do multi-scale LOL: ');
 Opts.localEmbedding = input('local_Embedding: SVD(0) / LOL(1)');
 Opts.LOL_Projection = input('LOL Projection on the whole data(1) / else(0)');
 Opts.UseX  = input('UseGW(0) / UseX(1)');
@@ -83,31 +84,22 @@ for nT = 1: nTrials
         else
             MRA{1}= load('MRAsave.mat');
         end
-        %   MRA{1}
-        %   MRA{1}.cp
-        %   MRA{1}.Classifier.Classifier
-        %   isempty(MRA{1}.Classifier.Classifier)
-        %    MRA{1}.Classifier.Classifier{end}{1}.W{1}
-        disp('# of the nodes from the resulted MRA: ');
-        length(MRA{1}.cp)
-        disp('# of the active nodes from the resulted MRA: ');
-        length(MRA{1}.Classifier.activenode_idxs)
-        %Opts = []; %?????????????????????????????????????
-        Opts.LOL_alg = LOL_alg{k};
-        %	disp('checking the classifier input to GMRA_Classifier_test')
-        %	MRA{1}.Classifier.Classifier
-        % 	disp('checking the min_ks transfer.........................................................')
-        %	MRA{1}.min_ks
-        %     tic;
-        ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
-        %     toc;
+        if Opts.METISLOL ~= 1
+            disp('# of the nodes from the resulted MRA: ');
+            length(MRA{1}.cp)
+            disp('# of the active nodes from the resulted MRA: ');
+            length(MRA{1}.Classifier.activenode_idxs)
+            %Opts = []; %?????????????????????????????????????
+            Opts.LOL_alg = LOL_alg{k};
+            ClassifierResults{k} = GMRA_Classifier_test( MRA{k}, X, TrainGroup, Labels, classifier_test{k}, Opts);
+        end
     end
     
-    Timing{nT} = MRA{1}.Timing;
-    Timing{nT}.GMRAClassifierTest = ClassifierResults{k}.Timing.GMRAClassifierTest;
-    %     ACC(nT) = MRA{1}.
+    if Opts.METISLOL ~= 1
+        Timing{nT} = MRA{1}.Timing;
+        Timing{nT}.GMRAClassifierTest = ClassifierResults{k}.Timing.GMRAClassifierTest;
+    end
     
-    % end
     
     %
     % Opts = [];
@@ -144,7 +136,8 @@ for nT = 1: nTrials
                 node_pred = ClassifierResults{1}.Test.Labels.labels_pred{i};
                 node_idx = ClassifierResults{1}.Test.Labels.idx{i};
                 node_true = labels_test(node_idx);
-                disp('the following should be 1 for BestK
+                disp('the following should be 1 for BestTrainK case: ')
+                length(node_pred)
                 for j = 1: length(node_pred) % for different ks
                     if isempty(node_true)
                         node_error(j) = 0;

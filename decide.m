@@ -1,4 +1,4 @@
-function [Yhat, boundary] = decide(sample,training,group,classifier,ks)
+function [Yhat, boundary, paramsBIC] = decide(sample,training,group,classifier,ks)
 % disp('start of decide')
 Nks=length(ks);
 siz=size(sample);
@@ -18,16 +18,10 @@ for i=1:Nks
             end
             if ~isempty(sample_node)
         %       [Yhat(i,:), ~, ~, ~, coef]  = classify(sample_node,training(1:ks(i),:)',group,classifier);
-%		disp('final input to the classifier: LDA_traintest')
-%		size(training(1:ks(i),:))
-%		size(group)
-%		size(sample_node')
-%		disp('end')
-% 		disp('checking for the error!')
-		[Yhat(i,:), ~, coef{i}, ~] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
-% 	   	size(training(1:ks(i),:))
-% 		size(sample_node')
-% 		coef{i}
+		[Yhat(i,:), ~, coef{i}, ~, paramsBIC] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
+        % Added for computing BIC for each k 
+        BIC = computeBIC(training(1:ks(i),:), group, sample_node', paramsBIC);
+
 	    else	
 		disp('sample_node empty!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             end    

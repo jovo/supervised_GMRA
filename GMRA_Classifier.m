@@ -28,7 +28,7 @@ Timing.GMRAClassifier = cputime;
 if nargin<4,    Opts = []; end;
 if ~isfield(Opts,'GMRAopts'),
     Opts.GMRAopts = struct();
-    Opts.GMRAopts.ManifoldDimension = 0;
+    Opts.GMRAopts.ManifoldDimension = 20;
     Opts.GMRAopts.precision  = 1e-5;
     Opts.GMRAopts.threshold0 = 0.1;
     Opts.GMRAopts.threshold1 = sqrt(2)*(1-cos(pi/24));    % threshold of singular values for determining the rank of each ( I - \Phi_{j,k} * \Phi_{j,k} ) * Phi_{j+1,k'}
@@ -96,7 +96,7 @@ if ~isfield(Opts,'debugMRA') % If there is not MRA already, do GMRA and output a
 else                         % If there is MRA given as input, don't do GMRA.
     MRA         = Opts.debugMRA;
 end
-% toc;
+
 MRA         = rmfield(MRA, 'X');
 MRA.Labels_train = Labels_train;
 
