@@ -1,4 +1,4 @@
-function [Yhat, Proj, P, boundary] = LOL_classify(sample,training,group,task)
+function [Yhat, Proj, P, boundary, BIC] = LOL_classify(sample,training,group,task)
 % 
 % 
 % DENL = LOL
@@ -53,7 +53,7 @@ for i=1:length(transformers)
     Xtrain=Proj{i}.V*training';
     for j=1:length(deciders{i})
         k=k+1;
-        [Yhat{k}, boundary] = decide(Xtest,Xtrain,group,deciders{i}{j},task.ks); % 'boundary' added for classify_single_node_train for supervised_GMRA
+        [Yhat{k}, boundary, BIC] = decide(Xtest,Xtrain,group,deciders{i}{j},task.ks); % 'boundary' added for classify_single_node_train for supervised_GMRA
     end
 end
 

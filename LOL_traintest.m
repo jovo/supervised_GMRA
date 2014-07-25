@@ -1,4 +1,4 @@
-function [labels_pred, n_errors, classifier, labels_prob] = LOL_traintest( data_train, labels_train, data_test, labels_test, Opts )
+function [labels_pred, n_errors, classifier, labels_prob, BIC] = LOL_traintest( data_train, labels_train, data_test, labels_test, Opts )
 
 % LDA train and test
 
@@ -16,7 +16,7 @@ if ~isfield(Opts,'Priors'),     Opts.Priors = [];   end;
 % Train LOL classifier
 
 % LOL_classify input: data: N by D, 1 by N
-[labels_pred, Proj, P, boundary] = LOL_classify(data_test',data_train',labels_train', Opts.task);
+[labels_pred, Proj, P, boundary, BIC] = LOL_classify(data_test',data_train',labels_train', Opts.task);
 % disp('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
 labels_pred = labels_pred{1}';
 

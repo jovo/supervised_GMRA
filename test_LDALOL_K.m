@@ -154,7 +154,7 @@ for nT = 1: nTrials
         [ task, ks] = set_task_LOL( Opts, size(data_train,2) );
         Opts.task = task;
         Opts.task.ks = ks;
-	Opts.task.ks =[1 400];
+%	Opts.task.ks =[1 400];
         
         if any(TrainK == 2)
             %% Local dimension based on local singular value decay of PCA and of LOL
@@ -304,7 +304,7 @@ for nT = 1: nTrials
         else % Run K at once
             tic;
             Timing_onset_LOL = cputime;
-            [labels_pred_LOL, n_errors_LOL, ~, ~] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
+            [labels_pred_LOL, n_errors_LOL, ~, ~, BIC] = LOL_traintest( data_train', labels_train, data_test', labels_test, Opts );
             tictoc_LOL(nT) = toc;
             cputime_LOL(nT) = cputime - Timing_onset_LOL;
             
