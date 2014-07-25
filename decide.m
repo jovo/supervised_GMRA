@@ -20,7 +20,7 @@ for i=1:Nks
         %       [Yhat(i,:), ~, ~, ~, coef]  = classify(sample_node,training(1:ks(i),:)',group,classifier);
 		[Yhat(i,:), ~, coef{i}, ~, paramsBIC] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
         % Added for computing BIC for each k 
-        BIC = computeBIC(training(1:ks(i),:), group, sample_node', paramsBIC);
+                BIC = computeBIC(training(1:ks(i),:), group, sample_node', paramsBIC, coef{i});
 
 	    else	
 		disp('sample_node empty!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')

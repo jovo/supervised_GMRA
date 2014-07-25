@@ -96,6 +96,8 @@ try
     paramsBIC.PooledCov = PooledCov;
     paramsBIC.invCov    = invCov;
     paramsBIC.GroupMean = GroupMean;
+    paramsBIC.Group     = Group;
+    paramsBIC.nGroup    = nGroup;    
     
     if isempty(W) || any(any(isnan(W))),
         dbstop,                     % DBG
