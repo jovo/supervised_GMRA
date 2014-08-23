@@ -344,7 +344,7 @@ for nT = 1: nTrials
     end
 end
 
-close all;
+% close all;
 figure; plot(ks, mean(ACC_LOL, 2), 'gx-')
 hold on; plot(1:max(ks), repmat(mean(maxACC), [1 max(ks)]), 'y-')
 % hold on; plot(1:max(ks), repmat(mean(ACC_LOL_SVDecayK), [ 1 max(ks)]), 'r-')
@@ -362,25 +362,55 @@ ylabel('Accuracy', 'FontSize', 18)
 % hold on; plot(reqDim_PCA, ACC_LOL_SVDecayK, 'ro', 'MarkerSize', 11)
 % hold on; plot(min_k_CV, ACC_LOL_CV, 'bo', 'MarkerSize', 11)
 
-
-if SeparateK
-    figure;
-    plot(ks, mean(cputime_LOL,2), 'rx-');
-    hold on;
-    plot(ks, mean(tictoc_LOL,2), 'bx-');
-%     hold off;
-    legend('cputime: LOL', 'tictoc: LOL')
-    xlabel('ks', 'FontSize', 11)
-    ylabel('timing', 'FontSize', 11)
-    title('Timing: MNIST:T0.3k:t10k:Label012', 'FontSize', 20)
-    if testLDA~=0
-        plot(ks, repmat(mean(cputime_LDA), size(ks)), 'r-');
+plotACCvsK = 0;
+if plotACCvsK
+    if SeparateK
+        figure;
+        plot(ks, mean(cputime_LOL,2), 'rx-');
         hold on;
-        plot(ks, repmat(mean(tictoc_LDA), size(ks)), 'b-');
-        hold off;
-        legend('cputime: LOL', 'tictoc: LOL', 'cputime: LDA', 'tictoc: LDA')
+        plot(ks, mean(tictoc_LOL,2), 'bx-');
+        %     hold off;
+        legend('cputime: LOL', 'tictoc: LOL')
+        xlabel('ks', 'FontSize', 11)
+        ylabel('timing', 'FontSize', 11)
+        title('Timing: MNIST:T0.3k:t10k:Label012', 'FontSize', 20)
+        if testLDA~=0
+            plot(ks, repmat(mean(cputime_LDA), size(ks)), 'r-');
+            hold on;
+            plot(ks, repmat(mean(tictoc_LDA), size(ks)), 'b-');
+            hold off;
+            legend('cputime: LOL', 'tictoc: LOL', 'cputime: LDA', 'tictoc: LDA')
+        end
     end
 end
+
+
+BICs = cat(1, BIC.BIC);
+TotalConst = cat(1, BIC.TotalConst);
+PriorTerm = cat(1, BIC.PriorTerm);
+MainTerm = cat(1, BIC.MainTerm);
+Likelihood = cat(1, BIC.Likelihood);
+Penalty = cat(1, BIC.PenalizingTerm);
+LogDetCov = cat(1, BIC.logdetcov);
+otherConst = cat(1, BIC.otherConst);
+figure;
+Npd = numel(LogDetCov);
+plot(ks(1:Npd), BICs(1:Npd), 'go--'); hold on;
+% plot(ks(1:Npd), TotalConst(1:Npd), 'b^-'); hold on;
+% plot(ks(1:Npd), otherConst(1:Npd), 'rd-'); hold on;
+% plot(ks(1:Npd), PriorTerm(1:Npd), 'co-'); hold on;
+% plot(ks(1:Npd), MainTerm(1:Npd), 'mx-'); hold on;
+plot(ks(1:Npd), Likelihood(1:Npd), 'rx-'); hold on;
+% plot(ks(1:Npd), LogDetCov(1:Npd), 'bo-'); hold on;
+plot(ks(1:Npd), Penalty(1:Npd), 'kx-'); hold off;
+
+legend('BICs', 'TotalConst: Ntrain*(logdetcov + otherConst)', 'PriorTerm', 'MainTerm', 'Likelihood', 'TheOther')
+legend('BICs', 'TotalConst', 'otherConst', 'Likelihood', 'LogDetCov')
+legend('BICs', 'Likelihood', 'PenalizingTerm');
+% legend('BIC', 'TotalConst', 'otherConst', 'PriorTerm', 'MainTerm', 'LikeLihood', 'LogDetCov', 'Penalty')
+title('BIC values for LOL model with different Local Dimensions', 'FontSize', 20)
+xlabel('k', 'FontSize', 11)
+ylabel('BIC', 'FontSize', 11)
 
 return;
 

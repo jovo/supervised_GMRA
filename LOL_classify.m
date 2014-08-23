@@ -47,10 +47,12 @@ k=0;
 for i=1:length(transformers)
     if ~isempty(sample)
         Xtest=Proj{i}.V*sample';
+%	Xtest = sample';
     else
         Xtest = [];
     end
     Xtrain=Proj{i}.V*training';
+%	Xtrain = training';
     for j=1:length(deciders{i})
         k=k+1;
         [Yhat{k}, boundary, BIC] = decide(Xtest,Xtrain,group,deciders{i}{j},task.ks); % 'boundary' added for classify_single_node_train for supervised_GMRA

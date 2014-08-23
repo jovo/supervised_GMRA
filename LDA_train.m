@@ -97,7 +97,7 @@ try
     paramsBIC.invCov    = invCov;
     paramsBIC.GroupMean = GroupMean;
     paramsBIC.nGroup    = nGroup;    
-    
+    paramsBIC.Input     = Input;
     if isempty(W) || any(any(isnan(W))),
         dbstop,                     % DBG
     end;

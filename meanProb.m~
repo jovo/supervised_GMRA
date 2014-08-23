@@ -1,0 +1,8 @@
+function [ meanprob ] = meanProb( Cov )
+%meanProb.m computes the log of mean likelihood of the multivariate normal distribution 
+% Input: covariance matrix
+% Output: the log mean likelihood of the distribution
+
+scaleTerm = -(D-k)*lllllllllllllllln(s*
+end
+

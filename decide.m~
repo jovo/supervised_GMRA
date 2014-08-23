@@ -6,18 +6,13 @@ ntest=siz(2);
 Yhat=nan(Nks,ntest);
 boundary=cell(Nks, 1);
 [~, ~, ~, ~, paramsBIC] = LDA_traintest(training,group,sample, [] );
-% fullCovMat 
-r = rank(paramsBIC.PooledCov)  
+fullCovMat 
+r = rank(fullCovMat)  
 % for i=1:Nks
-% temp = paramsBIC.PooledCov;
-% whos temp
-fullCovMat = paramsBIC.PooledCov(1:r, 1:r);
-% disp('hi')
-% numel(ks=<r)
-ir = sum(ks<=r)
+
+i_r = max(ks(ks=<r))
 %for i=Nks:-1:1    
-for i = 1:ir
-   try
+     try
         if any(strcmp(classifier,{'linear','quadratic','diagLinear','diagquadratic','mahalanobis'}))
             if isempty(sample)
                 sample_node = ones(1,ks(i));
@@ -32,17 +27,16 @@ for i = 1:ir
 		[Yhat(i,:), ~, coef{i}, ~, paramsBIC] = LDA_traintest(training(1:ks(i),:),group,sample_node', [] );
         % Added for computing BIC for each k 
         if i == Nks
-	        %fullCovMat = paramsBIC.PooledCov;
+            fullCovMat = paramsBIC.PooledCov;
 		disp('logdet, size, rank of fullCovMat')
 		logdet(fullCovMat)
 		size(fullCovMat)
 		rank(fullCovMat)
         	sum(diag(fullCovMat) == 0)
 		diag(fullCovMat) == 0
-        end
-%         disp('letsgo')
+	end
                 BIC(i) = computeBIC(training(1:ks(i),:), group, paramsBIC, coef{i}, fullCovMat);
-%         disp('duke')
+
 	    else	
 		disp('sample_node empty!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             end    

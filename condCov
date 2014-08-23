@@ -1,0 +1,7 @@
+function [ condcov ] = condCov( pooledCov, k )
+%condCov computes the conditional covariance of D-k dimension depending on k random
+%variables with known value
+
+
+end
+
