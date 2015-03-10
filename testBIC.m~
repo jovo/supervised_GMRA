@@ -1,0 +1,10 @@
+% Normal Mean Estimation for each classes:  mean for each classes
+% Normal Covariance matrix Estimation:      pooled covariance of classes
+% Prior Distribution for each classes:      (equal probability as in classify.m)
+% BIC = -2*ln(max_L) + k*(ln(n) - ln(2*pi))
+
+l
+BIC 
+
+
+

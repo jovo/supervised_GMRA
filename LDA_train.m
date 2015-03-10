@@ -1,4 +1,4 @@
-function [classifier_trained] = LDA_train(Input,Target,Priors)
+function [classifier_trained, paramsBIC] = LDA_train(Input,Target,Priors)
 
 % LDA - MATLAB subroutine to perform linear discriminant analysis
 % by Will Dwinnell and Deniz Sevis - modified by Mauro Maggioni
@@ -91,6 +91,13 @@ try
     classifier_trained.W = W;
     classifier_trained.ClassLabel = ClassLabel;
     
+    % Addition for BIC parameters
+    paramsBIC.PriorProb = PriorProb;
+    paramsBIC.PooledCov = PooledCov;
+    paramsBIC.invCov    = invCov;
+    paramsBIC.GroupMean = GroupMean;
+    paramsBIC.nGroup    = nGroup;    
+    paramsBIC.Input     = Input;
     if isempty(W) || any(any(isnan(W))),
         dbstop,                     % DBG
     end;

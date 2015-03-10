@@ -1,0 +1,4 @@
+A = magic(5);
+B = bsxfun(@minus, A, mean(A,2));
+[V, S, W] = randPCA(B, 5)
+[V2,S2,W2] = pca(B)
